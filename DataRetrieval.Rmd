@@ -53,25 +53,25 @@ cna.OV.data <- subset((assays(cna.OV)[[2]]), cna.OV.var >= quantile(cna.OV.var, 
 
 Storing the data matrices in a datatable.
 
-#```{r datatable, echo=FALSE}
-DT::datatable(head(rnaseq.OV$dat))
-DT::datatable(head(meth.OV$dat))
+```{r datatable, echo=FALSE}
+DT::datatable(head(rnaseq.OV.data))
+DT::datatable(head(meth.OV.data))
 DT::datatable(head(mut.OV$dat))
-DT::datatable(head(assays(cna.OV)[[2]]))
-#```
+DT::datatable(head(cna.OV.data))
+```
 
 
-#```{r store clinical, echo=FALSE}
+```{r store clinical, echo=FALSE}
 DT::datatable(head(rnaseq.OV$clinical))
-#```
+```
 
-#```{r get matched tumor/normal smaples, echo = FALSE}
+```{r get matched tumor/normal smaples, echo = FALSE}
 rnaseq.OV.tum.norm <- TumorNormalMatch(rnaseq.OV$dat)
 meth.OV.tum.norm <- TumorNormalMatch(meth.OV$dat)
 mut.OV.tum.norm <- TumorNormalMatch(mut.OV$dat)
 cna.OV.tum.norm <- TumorNormalMatch(assays(cna.OV)[[2]])
 
-#```
+```
 
 #```{r store rnaseq matched, echo=FALSE}
 DT::datatable(head(rnaseq.OV.tum.norm$primary))

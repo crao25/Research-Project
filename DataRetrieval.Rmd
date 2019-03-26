@@ -1,0 +1,109 @@
+
+\```{r, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE)
+\```
+
+---
+title: "Data Retrieval from TCGA"
+output: html_document
+author: "Chaitra Rao"
+---
+
+## Necessary Packages
+
+```{r libararies, message = FALSE}
+suppressPackageStartupMessages(library(RTCGAToolbox))
+suppressPackageStartupMessages(library(TCGA2STAT))
+suppressPackageStartupMessages(library(curatedTCGAData))
+suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(DT))
+```
+
+## Retrieval of data
+
+Retrieval of the following data:
+1. RNA Seq gene expression with raw counts
+2. DNA Methylation profiles obtained via HumanMethylation450 BeadChip (probes for ca. 450K CpG sites)
+3. Somatic non-silent mutations
+4. GISTIC-called CNA data summarized by gene -> the quantitaive readout can be discreticized -> Ref. to the datatable
+
+
+```{r OV data, echo=FALSE}
+
+rnaseq.OV <- getTCGA(disease = "READ", data.type = "RNASeq", type = "count", clinical = TRUE)
+meth.OV <- getTCGA(disease = "READ", data.type = "Methylation", type = "450K")
+mut.OV <- getTCGA(disease = "READ", data.type = "Mutation", type = "somatic")
+cna.OV <- curatedTCGAData(diseaseCode = "READ",
+                        assays = "*GISTIC*",
+                        dry.run = FALSE)
+meth.OV.var <- apply(meth.OV$dat, 1, var)
+meth.OV.data <- subset(meth.OV$dat, meth.OV.var >= quantile(meth.OV.var, 0.99, na.rm=T) & !is.na(meth.OV.var))
+
+rnaseq.OV.var <- apply(log10(1+rnaseq.OV$dat), 1, var)
+rnaseq.OV.data <- subset(log10(1+rnaseq.OV$dat), rnaseq.OV.var >= quantile(rnaseq.OV.var, 0.99, na.rm=T) & !is.na(rnaseq.OV.var))
+
+mut.OV.var <- apply(mut.OV$dat, 1, var)
+mut.OV.data <- subset(mut.OV$dat, mut.OV.var >= quantile(mut.OV.var, 0.99, na.rm=T) & !is.na(mut.OV.var))
+
+cna.OV.var <- apply((assays(cna.OV)[[2]]), 1, var)
+cna.OV.data <- subset((assays(cna.OV)[[2]]), cna.OV.var >= quantile(cna.OV.var, 0.99, na.rm=T) & !is.na(cna.OV.var))
+```
+
+## Getting a datatable for each kind of data
+
+Storing the data matrices in a datatable.
+
+#```{r datatable, echo=FALSE}
+DT::datatable(head(rnaseq.OV$dat))
+DT::datatable(head(meth.OV$dat))
+DT::datatable(head(mut.OV$dat))
+DT::datatable(head(assays(cna.OV)[[2]]))
+#```
+
+
+#```{r store clinical, echo=FALSE}
+DT::datatable(head(rnaseq.OV$clinical))
+#```
+
+#```{r get matched tumor/normal smaples, echo = FALSE}
+rnaseq.OV.tum.norm <- TumorNormalMatch(rnaseq.OV$dat)
+meth.OV.tum.norm <- TumorNormalMatch(meth.OV$dat)
+mut.OV.tum.norm <- TumorNormalMatch(mut.OV$dat)
+cna.OV.tum.norm <- TumorNormalMatch(assays(cna.OV)[[2]])
+
+#```
+
+#```{r store rnaseq matched, echo=FALSE}
+DT::datatable(head(rnaseq.OV.tum.norm$primary))
+DT::datatable(head(rnaseq.OV.tum.norm$normal))
+
+#```
+
+#```{r store meth matched, echo=FALSE}
+DT::datatable(head(meth.OV.tum.norm$primary))
+DT::datatable(head(meth.OV.tum.norm$normal))
+
+#```
+
+#```{r store mut matched, echo=FALSE}
+DT::datatable(head(mut.OV.tum.norm$primary))
+DT::datatable(head(mut.OV.tum.norm$normal))
+
+#```
+
+#```{r store cna matched, echo=FALSE}
+DT::datatable(head(cna.OV.tum.norm$primary))
+DT::datatable(head(cna.OV.tum.norm$normal))
+
+#```
+
+# Session
+
+```{r sessionInfo, cache = FALSE}
+date()
+devtools::session_info()
+```
+
+
+
+

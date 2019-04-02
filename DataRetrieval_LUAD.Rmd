@@ -1,0 +1,111 @@
+
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE)
+```
+
+---
+title: "Data Retrieval from TCGA"
+output: html_document
+author: "Chaitra Rao"
+---
+
+## Necessary Packages
+
+```{r libararies, message = FALSE}
+suppressPackageStartupMessages(library(RTCGAToolbox))
+suppressPackageStartupMessages(library(TCGA2STAT))
+suppressPackageStartupMessages(library(curatedTCGAData))
+suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(DT))
+```
+
+## Retrieval of data
+
+Retrieval of the following data:
+1. RNA Seq gene expression with raw counts
+2. DNA Methylation profiles obtained via HumanMethylation450 BeadChip (probes for ca. 450K CpG sites)
+3. Somatic non-silent mutations
+4. GISTIC-called CNA data summarized by gene -> the quantitative readout can be discreticized -> Ref. to the datatable
+
+
+```{r LUAD data, echo=FALSE}
+
+rnaseq.LUAD <- getTCGA(disease = "LUAD", data.type = "RNASeq2", type = "count", clinical = TRUE)
+meth.LUAD <- getTCGA(disease = "LUAD", data.type = "Methylation", type = "450K", clinical = TRUE)
+mut.LUAD <- getTCGA(disease = "LUAD", data.type = "Mutation", type = "somatic")
+cna.LUAD <- curatedTCGAData(diseaseCode = "LUAD",
+                        assays = "*GISTIC*",
+                        dry.run = FALSE)
+
+```
+
+## Getting a datatable for each kind of data
+
+Storing the data matrices in a datatable.
+
+```{r datatable, echo=FALSE}
+DT::datatable(head(rnaseq.LUAD$dat))
+DT::datatable(head(meth.LUAD$dat))
+DT::datatable(head(mut.LUAD$dat))
+DT::datatable(head(assays(cna.LUAD)[[2]]))
+```
+
+
+Store the clinical data in a datatable
+
+```{r store clinical, echo=FALSE}
+DT::datatable(head(rnaseq.LUAD$clinical))
+```
+
+
+##Get matched tumor and normal samples
+
+```{r get matched tumor/normal smaples, echo = FALSE}
+rnaseq.LUAD.tum.norm <- TumorNormalMatch(rnaseq.LUAD$dat)
+meth.LUAD.tum.norm <- TumorNormalMatch(meth.LUAD$dat)
+mut.LUAD.tum.norm <- TumorNormalMatch(mut.LUAD$dat)
+cna.LUAD.tum.norm <- TumorNormalMatch(assays(cna.LUAD)[[2]])
+
+```
+
+
+Store the tumor and normal sample in two separate datatables (dim = gene x sample)
+
+RNASeq
+```{r store rnaseq matched, echo=FALSE}
+DT::datatable(head(rnaseq.LUAD.tum.norm$primary))
+DT::datatable(head(rnaseq.LUAD.tum.norm$normal))
+
+```
+
+Methylation
+```{r store meth matched, echo=FALSE}
+DT::datatable(head(meth.LUAD.tum.norm$primary))
+DT::datatable(head(meth.LUAD.tum.norm$normal))
+
+```
+
+Mutation
+```{r store mut matched, echo=FALSE}
+DT::datatable(head(mut.LUAD.tum.norm$primary))
+DT::datatable(head(mut.LUAD.tum.norm$normal))
+
+```
+
+CNA
+```{r store cna matched, echo=FALSE}
+DT::datatable(head(cna.LUAD.tum.norm$primary))
+DT::datatable(head(cna.LUAD.tum.norm$normal))
+
+```
+
+# Session info
+
+```{r sessionInfo, cache = TRUE}
+date()
+devtools::session_info()
+```
+
+
+
+

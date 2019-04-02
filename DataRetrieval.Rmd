@@ -5,7 +5,7 @@ knitr::opts_chunk$set(error = TRUE)
 
 ---
 title: "Data Retrieval from TCGA"
-output: html_dLUSCument
+output: html_document
 author: "Chaitra Rao"
 ---
 
@@ -28,12 +28,12 @@ Retrieval of the following data:
 4. GISTIC-called CNA data summarized by gene -> the quantitative readout can be discreticized -> Ref. to the datatable
 
 
-```{r LUSC data, echo=FALSE}
+```{r BRCA data, echo=FALSE}
 
-rnaseq.LUSC <- getTCGA(disease = "LUSC", data.type = "RNASeq2", type = "count", clinical = TRUE)
-meth.LUSC <- getTCGA(disease = "LUSC", data.type = "Methylation", type = "450K", clinical = TRUE)
-mut.LUSC <- getTCGA(disease = "LUSC", data.type = "Mutation", type = "somatic")
-cna.LUSC <- curatedTCGAData(diseaseCode = "LUSC",
+rnaseq.BRCA <- getTCGA(disease = "BRCA", data.type = "RNASeq2", type = "count", clinical = TRUE)
+meth.BRCA <- getTCGA(disease = "BRCA", data.type = "Methylation", type = "450K", clinical = TRUE)
+mut.BRCA <- getTCGA(disease = "BRCA", data.type = "Mutation", type = "somatic")
+cna.BRCA <- curatedTCGAData(diseaseCode = "BRCA",
                         assays = "*GISTIC*",
                         dry.run = FALSE)
 
@@ -44,27 +44,27 @@ cna.LUSC <- curatedTCGAData(diseaseCode = "LUSC",
 Storing the data matrices in a datatable.
 
 ```{r datatable, echo=FALSE}
-DT::datatable(head(rnaseq.LUSC$dat))
-DT::datatable(head(meth.LUSC$dat))
-DT::datatable(head(mut.LUSC$dat))
-DT::datatable(head(assays(cna.LUSC)[[2]]))
+DT::datatable(head(rnaseq.BRCA$dat))
+DT::datatable(head(meth.BRCA$dat))
+DT::datatable(head(mut.BRCA$dat))
+DT::datatable(head(assays(cna.BRCA)[[2]]))
 ```
 
 
 Store the clinical data in a datatable
 
 ```{r store clinical, echo=FALSE}
-DT::datatable(head(rnaseq.LUSC$clinical))
+DT::datatable(head(rnaseq.BRCA$clinical))
 ```
 
 
 Get matched tumor and normal samples
 
 ```{r get matched tumor/normal smaples, echo = FALSE}
-rnaseq.LUSC.tum.norm <- TumorNormalMatch(rnaseq.LUSC$dat)
-meth.LUSC.tum.norm <- TumorNormalMatch(meth.LUSC$dat)
-mut.LUSC.tum.norm <- TumorNormalMatch(mut.LUSC$dat)
-cna.LUSC.tum.norm <- TumorNormalMatch(assays(cna.LUSC)[[2]])
+rnaseq.BRCA.tum.norm <- TumorNormalMatch(rnaseq.BRCA$dat)
+meth.BRCA.tum.norm <- TumorNormalMatch(meth.BRCA$dat)
+mut.BRCA.tum.norm <- TumorNormalMatch(mut.BRCA$dat)
+cna.BRCA.tum.norm <- TumorNormalMatch(assays(cna.BRCA)[[2]])
 
 ```
 
@@ -72,29 +72,29 @@ cna.LUSC.tum.norm <- TumorNormalMatch(assays(cna.LUSC)[[2]])
 Store the tumor and normal sample in two separate datatables (dim = gene x sample)
 
 ```{r store rnaseq matched, echo=FALSE}
-DT::datatable(head(rnaseq.LUSC.tum.norm$primary))
-DT::datatable(head(rnaseq.LUSC.tum.norm$normal))
+DT::datatable(head(rnaseq.BRCA.tum.norm$primary))
+DT::datatable(head(rnaseq.BRCA.tum.norm$normal))
 
 ```
 
 
 ```{r store meth matched, echo=FALSE}
-DT::datatable(head(meth.LUSC.tum.norm$primary))
-DT::datatable(head(meth.LUSC.tum.norm$normal))
+DT::datatable(head(meth.BRCA.tum.norm$primary))
+DT::datatable(head(meth.BRCA.tum.norm$normal))
 
 ```
 
 
 ```{r store mut matched, echo=FALSE}
-DT::datatable(head(mut.LUSC.tum.norm$primary))
-DT::datatable(head(mut.LUSC.tum.norm$normal))
+DT::datatable(head(mut.BRCA.tum.norm$primary))
+DT::datatable(head(mut.BRCA.tum.norm$normal))
 
 ```
 
 
 ```{r store cna matched, echo=FALSE}
-DT::datatable(head(cna.LUSC.tum.norm$primary))
-DT::datatable(head(cna.LUSC.tum.norm$normal))
+DT::datatable(head(cna.BRCA.tum.norm$primary))
+DT::datatable(head(cna.BRCA.tum.norm$normal))
 
 ```
 

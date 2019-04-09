@@ -44,17 +44,17 @@ cna.COAD <- curatedTCGAData(diseaseCode = "COAD",
 Storing the data matrices in a datatable.
 
 ```{r datatable, echo=FALSE}
-DT::datatable(head(rnaseq.COAD$dat))
-DT::datatable(head(meth.COAD$dat))
-DT::datatable(head(mut.COAD$dat))
-DT::datatable(head(assays(cna.COAD)[[2]]))
+data.matrix(rnaseq.COAD$dat)
+meth_data <- data.matrix(meth.COAD$dat)
+mut_dat <- data.matrix(mut.COAD$dat)
+cna_data <- data.matrix(assays(cna.COAD)[[2]])
 ```
 
 
 Store the clinical data in a datatable
 
 ```{r store clinical, echo=FALSE}
-DT::datatable(head(rnaseq.COAD$clinical))
+clin_data <- data.matrix(rnaseq.COAD$clinical)
 ```
 
 
@@ -73,29 +73,29 @@ Store the tumor and normal sample in two separate datatables (dim = gene x sampl
 
 RNASeq
 ```{r store rnaseq matched, echo=FALSE}
-DT::datatable(head(rnaseq.COAD.tum.norm$primary))
-DT::datatable(head(rnaseq.COAD.tum.norm$normal))
+rnaseq_tum <- data.matrix(rnaseq.COAD.tum.norm$primary)
+rnaseq_norm <- data.matrix(rnaseq.COAD.tum.norm$normal)
 
 ```
 
 Methylation
 ```{r store meth matched, echo=FALSE}
-DT::datatable(head(meth.COAD.tum.norm$primary))
-DT::datatable(head(meth.COAD.tum.norm$normal))
+meth_tum <- data.matrix(meth.COAD.tum.norm$primary)
+meth_norm <- data.matrix(meth.COAD.tum.norm$normal)
 
 ```
 
 Mutation
 ```{r store mut matched, echo=FALSE}
-DT::datatable(head(mut.COAD.tum.norm$primary))
-DT::datatable(head(mut.COAD.tum.norm$normal))
+mut_tum <- data.matrix(mut.COAD.tum.norm$primary)
+mut_norm <- data.matrix(mut.COAD.tum.norm$normal)
 
 ```
 
 CNA
 ```{r store cna matched, echo=FALSE}
-DT::datatable(head(cna.COAD.tum.norm$primary))
-DT::datatable(head(cna.COAD.tum.norm$normal))
+cna_tum <- data.matrix(cna.COAD.tum.norm$primary)
+cna_norm <- data.matrix(cna.COAD.tum.norm$normal)
 
 ```
 
@@ -107,5 +107,6 @@ devtools::session_info()
 ```
 
 
-
+#data matrices instead of datatables without annotations
+#
 

@@ -63,8 +63,6 @@ clin_data <- data.matrix(rnaseq.COAD$clinical)
 ```{r get matched tumor/normal smaples, echo = FALSE}
 rnaseq.COAD.tum.norm <- TumorNormalMatch(rnaseq.COAD$dat)
 meth.COAD.tum.norm <- TumorNormalMatch(meth.COAD$dat)
-mut.COAD.tum.norm <- TumorNormalMatch(mut.COAD$dat)
-cna.COAD.tum.norm <- TumorNormalMatch(assays(cna.COAD)[[2]])
 
 ```
 
@@ -85,19 +83,9 @@ meth_norm <- data.matrix(meth.COAD.tum.norm$normal)
 
 ```
 
-Mutation
-```{r store mut matched, echo=FALSE}
-mut_tum <- data.matrix(mut.COAD.tum.norm$primary)
-mut_norm <- data.matrix(mut.COAD.tum.norm$normal)
 
-```
 
-CNA
-```{r store cna matched, echo=FALSE}
-cna_tum <- data.matrix(cna.COAD.tum.norm$primary)
-cna_norm <- data.matrix(cna.COAD.tum.norm$normal)
 
-```
 
 # Session info
 

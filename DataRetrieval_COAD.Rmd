@@ -17,6 +17,7 @@ suppressPackageStartupMessages(library(TCGA2STAT))
 suppressPackageStartupMessages(library(curatedTCGAData))
 suppressPackageStartupMessages(library(devtools))
 suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
 ```
 
 ## Retrieval of data

@@ -34,21 +34,21 @@ rnaseq.COAD <- getTCGA(disease = "COAD", data.type = "RNASeq2", type = "count", 
 meth.COAD <- getTCGA(disease = "COAD", data.type = "Methylation", type = "450K", clinical = TRUE)
 mut.COAD <- getTCGA(disease = "COAD", data.type = "Mutation", type = "somatic")
 cna_COAD <- getTCGA(disease="COAD", data.type="CNA_SNP")
-cna.COAD <- curatedTCGAData(diseaseCode = "COAD",
-                        assays = "*GISTIC*",
-                        dry.run = FALSE)
+#cna.COAD <- curatedTCGAData(diseaseCode = "COAD",
+                        #assays = "*GISTIC*",
+                       # dry.run = FALSE)
 
 ```
 
 ```{r trimming, echo=FALSE, message=FALSE}
 string1 <- colnames(rnaseq.COAD$dat)
-string1 <- substring(string1, 1, 12)
+colnames(rnaseq.COAD$dat) <- substring(string1, 1, 12)
 string2 <- colnames(meth.COAD$dat)
-string2 <- substring(string2, 1, 12)
+colnames(meth.COAD$dat) <- substring(string2, 1, 12)
 string3 <- colnames(mut.COAD$dat)
-string3 <- substring(string3, 1, 12)
+colnames(mut.COAD$dat) <- substring(string3, 1, 12)
 string4 <- colnames(cna_COAD$dat)
-string4 <- substring(string4, 1, 12)
+colnames(cna_COAD$dat) <- substring(string4, 1, 12)
 
 ```
 

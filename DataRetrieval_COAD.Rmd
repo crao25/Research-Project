@@ -40,6 +40,11 @@ cna_COAD <- getTCGA(disease="COAD", data.type="CNA_SNP")
 
 ```
 
+```{r beta2m, echo=FALSE, message=FALSE}
+meth.COAD$dat <- beta2m(meth.COAD$dat)
+```
+
+
 ```{r trimming, echo=FALSE, message=FALSE}
 string1 <- colnames(rnaseq.COAD$dat)
 colnames(rnaseq.COAD$dat) <- substring(string1, 1, 12)
@@ -52,16 +57,25 @@ colnames(cna_COAD$dat) <- substring(string4, 1, 12)
 
 ```
 
+
+
 ## Getting a datamatrix for each kind of data
 
 Storing the data matrices.
 
-```{r datatable, echo=FALSE}
-head(rnaseq.COAD$dat)
+```{r datamatrices, echo=FALSE}
+rnaseq_data <- rnaseq.COAD$dat
 meth_data <- meth.COAD$dat
 mut_dat <- mut.COAD$dat
 cna.data <- cna_COAD$dat
 #cna_data <- data.matrix(assays(cna.COAD)[[2]])
+```
+
+```{r combine data, echo=FALSE, message=FALSE}
+m1 <- OMICSBind(dat1 = rnaseq_data, dat2 = meth_data)
+m2 <- OMICSBind(dat1 = m1$merged.data, dat2 = cna.data)
+data <- OMICSBind(dat1 = m2$merged.data, dat2 = mut_dat)
+
 ```
 
 
@@ -75,8 +89,8 @@ clin_data <- data.matrix(rnaseq.COAD$clinical)
 ##Get matched tumor and normal samples
 
 ```{r get matched tumor/normal smaples, echo = FALSE}
-rnaseq.COAD.tum.norm <- TumorNormalMatch(rnaseq.COAD$dat)
-meth.COAD.tum.norm <- TumorNormalMatch(meth.COAD$dat)
+rnaseq.COAD.tum.norm <- TumorNormalMatch(rnaseq_data)
+meth.COAD.tum.norm <- TumorNormalMatch(meth_data)
 
 ```
 

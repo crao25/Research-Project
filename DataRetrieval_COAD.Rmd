@@ -57,10 +57,10 @@ colnames(cna_COAD$dat) <- substring(string4, 1, 12)
 Storing the data matrices.
 
 ```{r datatable, echo=FALSE}
-rnaseq_data <- data.matrix(head(rnaseq.COAD$dat))
-meth_data <- data.matrix(head(meth.COAD$dat))
-mut_dat <- data.matrix(head(mut.COAD$dat))
-cna.data <- data.matrix(head(cna_COAD$dat))
+head(rnaseq.COAD$dat)
+meth_data <- meth.COAD$dat
+mut_dat <- mut.COAD$dat
+cna.data <- cna_COAD$dat
 #cna_data <- data.matrix(assays(cna.COAD)[[2]])
 ```
 
@@ -85,19 +85,17 @@ Store the tumor and normal sample in two separate datatables (dim = gene x sampl
 
 RNASeq
 ```{r store rnaseq matched, echo=FALSE}
-rnaseq_tum <- data.matrix(rnaseq.COAD.tum.norm$primary)
-rnaseq_norm <- data.matrix(rnaseq.COAD.tum.norm$normal)
+rnaseq_tum <- (rnaseq.COAD.tum.norm$primary)
+rnaseq_norm <- (rnaseq.COAD.tum.norm$normal)
 
 ```
 
 Methylation
 ```{r store meth matched, echo=FALSE}
-meth_tum <- data.matrix(meth.COAD.tum.norm$primary)
-meth_norm <- data.matrix(meth.COAD.tum.norm$normal)
+meth_tum <- (meth.COAD.tum.norm$primary)
+meth_norm <- (meth.COAD.tum.norm$normal)
 
 ```
-
-
 
 
 

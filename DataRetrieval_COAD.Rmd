@@ -33,25 +33,39 @@ Retrieval of the following data:
 rnaseq.COAD <- getTCGA(disease = "COAD", data.type = "RNASeq2", type = "count", clinical = TRUE)
 meth.COAD <- getTCGA(disease = "COAD", data.type = "Methylation", type = "450K", clinical = TRUE)
 mut.COAD <- getTCGA(disease = "COAD", data.type = "Mutation", type = "somatic")
+cna_COAD <- getTCGA(disease="COAD", data.type="CNA_SNP")
 cna.COAD <- curatedTCGAData(diseaseCode = "COAD",
                         assays = "*GISTIC*",
                         dry.run = FALSE)
 
 ```
 
-## Getting a datatable for each kind of data
+```{r trimming, echo=FALSE, message=FALSE}
+string1 <- colnames(rnaseq.COAD$dat)
+string1 <- substring(string1, 1, 12)
+string2 <- colnames(meth.COAD$dat)
+string2 <- substring(string2, 1, 12)
+string3 <- colnames(mut.COAD$dat)
+string3 <- substring(string3, 1, 12)
+string4 <- colnames(cna_COAD$dat)
+string4 <- substring(string4, 1, 12)
 
-Storing the data matrices in a datatable.
+```
+
+## Getting a datamatrix for each kind of data
+
+Storing the data matrices.
 
 ```{r datatable, echo=FALSE}
-data.matrix(rnaseq.COAD$dat)
-meth_data <- data.matrix(meth.COAD$dat)
-mut_dat <- data.matrix(mut.COAD$dat)
-cna_data <- data.matrix(assays(cna.COAD)[[2]])
+rnaseq_data <- data.matrix(head(rnaseq.COAD$dat))
+meth_data <- data.matrix(head(meth.COAD$dat))
+mut_dat <- data.matrix(head(mut.COAD$dat))
+cna.data <- data.matrix(head(cna_COAD$dat))
+#cna_data <- data.matrix(assays(cna.COAD)[[2]])
 ```
 
 
-Store the clinical data in a datatable
+Store the clinical data in a datamatrix
 
 ```{r store clinical, echo=FALSE}
 clin_data <- data.matrix(rnaseq.COAD$clinical)

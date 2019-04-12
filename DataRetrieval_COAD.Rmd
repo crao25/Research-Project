@@ -85,12 +85,12 @@ Store the clinical data in a datamatrix
 clin_data <- data.matrix(rnaseq.COAD$clinical)
 ```
 
-```{store datatables, echo=FALSE, message=FALSE}
-rnaseq.data <- datatable(rnaseq.LUAD$dat)
-meth.data <- datatable(meth.LUAD$dat)
-mut.data <- datatable(mut.LUAD$dat)
-cna.data <- datatable(cna_COAD$dat)
 
+```{store datatables, echo=FALSE, message=FALSE}
+rnaseq.data <- datatable(rnaseq.COAD$dat)
+meth.data <- datatable(meth.COAD$dat)
+mut.data <- datatable(mut.COAD$dat)
+cna.data <- datatable(cna_COAD$dat)
 ```
 
 ##Get matched tumor and normal samples
@@ -118,7 +118,15 @@ meth_norm <- (meth.COAD.tum.norm$normal)
 
 ```
 
+```{r subtract normal from tumor, echo=FALSE, message=FALSE}
+meth_new_data <- meth_tum - meth_norm
+rnaseq_new_data <- rnaseq_tum - rnaseq_norm
 
+```
+
+```{r new data storing, echo=FALSE, message=FALSE}
+data <- list(rnaseq_new_data, meth_new_data, mut_data, cna_data)
+```
 
 # Session info
 

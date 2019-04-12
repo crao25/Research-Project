@@ -47,6 +47,46 @@ meth.COAD$dat <- beta2m(meth.COAD$dat)
 ```
 
 
+Store the clinical data in a datamatrix
+
+```{r store clinical, echo=FALSE}
+clin_data <- data.matrix(rnaseq.COAD$clinical)
+```
+
+
+```{r store datatables, echo=FALSE, message=FALSE}
+DT::datatable(head(rnaseq.COAD$dat))
+DT::datatable(head(meth.COAD$dat))
+DT::datatable(head(mut.COAD$dat))
+DT::datatable(head(cna.COAD$dat))
+```
+
+##Get matched tumor and normal samples
+
+```{r get matched tumor/normal smaples, echo = FALSE}
+rnaseq.COAD.tum.norm <- TumorNormalMatch(rnaseq.COAD$dat)
+meth.COAD.tum.norm <- TumorNormalMatch(meth.COAD$dat)
+
+```
+
+
+Store the tumor and normal sample in two separate datatables (dim = gene x sample)
+
+RNASeq
+```{r store rnaseq matched, echo=FALSE}
+rnaseq_tum <- (rnaseq.COAD.tum.norm$primary)
+rnaseq_norm <- (rnaseq.COAD.tum.norm$normal)
+
+```
+
+Methylation
+```{r store meth matched, echo=FALSE}
+meth_tum <- (meth.COAD.tum.norm$primary)
+meth_norm <- (meth.COAD.tum.norm$normal)
+```
+
+
+
 ```{r trimming, echo=FALSE, message=FALSE}
 string1 <- colnames(rnaseq.COAD$dat)
 colnames(rnaseq.COAD$dat) <- substring(string1, 1, 12)
@@ -74,47 +114,8 @@ cna_data <- cna.COAD$dat
 ```
 
 ```{r combine data into a list, echo=FALSE, message=FALSE}
-data <- list(rnaseq_data, meth_data, mut_data, cna_data)
+data <- list("rnaseq_data"=rnaseq_data, "meth_data"=meth_data, "mut_data"=mut_data, "cna_data"=cna_data)
 
-```
-
-
-Store the clinical data in a datamatrix
-
-```{r store clinical, echo=FALSE}
-clin_data <- data.matrix(rnaseq.COAD$clinical)
-```
-
-
-```{r store datatables, echo=FALSE, message=FALSE}
-rnaseq.data <- datatable(rnaseq.COAD$dat)
-meth.data <- datatable(meth.COAD$dat)
-mut.data <- datatable(mut.COAD$dat)
-cna.data <- datatable(cna.COAD$dat)
-```
-
-##Get matched tumor and normal samples
-
-```{r get matched tumor/normal smaples, echo = FALSE}
-rnaseq.COAD.tum.norm <- TumorNormalMatch(rnaseq.data)
-meth.COAD.tum.norm <- TumorNormalMatch(meth.data)
-
-```
-
-
-Store the tumor and normal sample in two separate datatables (dim = gene x sample)
-
-RNASeq
-```{r store rnaseq matched, echo=FALSE}
-rnaseq_tum <- (rnaseq.COAD.tum.norm$primary)
-rnaseq_norm <- (rnaseq.COAD.tum.norm$normal)
-
-```
-
-Methylation
-```{r store meth matched, echo=FALSE}
-meth_tum <- (meth.COAD.tum.norm$primary)
-meth_norm <- (meth.COAD.tum.norm$normal)
 ```
 
 

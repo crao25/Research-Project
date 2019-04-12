@@ -118,15 +118,7 @@ meth_norm <- (meth.COAD.tum.norm$normal)
 
 ```
 
-```{r subtract normal from tumor, echo=FALSE, message=FALSE}
-meth_new_data <- meth_tum - meth_norm
-rnaseq_new_data <- rnaseq_tum - rnaseq_norm
 
-```
-
-```{r new data storing, echo=FALSE, message=FALSE}
-data <- list(rnaseq_new_data, meth_new_data, mut_data, cna_data)
-```
 
 # Session info
 

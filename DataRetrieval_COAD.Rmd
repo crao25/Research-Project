@@ -38,8 +38,9 @@ cna_COAD <- getTCGA(disease="COAD", data.type="CNA_SNP")
 #cna.COAD <- curatedTCGAData(diseaseCode = "COAD",
                         #assays = "*GISTIC*",
                        # dry.run = FALSE)
-
 ```
+
+
 
 ```{r beta2m, echo=FALSE, message=FALSE}
 meth.COAD$dat <- beta2m(meth.COAD$dat)
@@ -67,15 +68,13 @@ Storing the data matrices.
 ```{r datamatrices, echo=FALSE}
 rnaseq_data <- rnaseq.COAD$dat
 meth_data <- meth.COAD$dat
-mut_dat <- mut.COAD$dat
-cna.data <- cna_COAD$dat
+mut_data <- mut.COAD$dat
+cna_data <- cna_COAD$dat
 #cna_data <- data.matrix(assays(cna.COAD)[[2]])
 ```
 
-```{r combine data, echo=FALSE, message=FALSE}
-m1 <- OMICSBind(dat1 = rnaseq_data, dat2 = meth_data)
-m2 <- OMICSBind(dat1 = m1$merged.data, dat2 = cna.data)
-data <- OMICSBind(dat1 = m2$merged.data, dat2 = mut_dat)
+```{r combine data into a list, echo=FALSE, message=FALSE}
+data <- list(rnaseq_data, meth_data, mut_data, cna_data)
 
 ```
 
@@ -86,12 +85,19 @@ Store the clinical data in a datamatrix
 clin_data <- data.matrix(rnaseq.COAD$clinical)
 ```
 
+```{store datatables, echo=FALSE, message=FALSE}
+rnaseq.data <- datatable(rnaseq.LUAD$dat)
+meth.data <- datatable(meth.LUAD$dat)
+mut.data <- datatable(mut.LUAD$dat)
+cna.data <- datatable(cna_COAD$dat)
+
+```
 
 ##Get matched tumor and normal samples
 
 ```{r get matched tumor/normal smaples, echo = FALSE}
-rnaseq.COAD.tum.norm <- TumorNormalMatch(rnaseq_data)
-meth.COAD.tum.norm <- TumorNormalMatch(meth_data)
+rnaseq.COAD.tum.norm <- TumorNormalMatch(rnaseq.data)
+meth.COAD.tum.norm <- TumorNormalMatch(meth.data)
 
 ```
 

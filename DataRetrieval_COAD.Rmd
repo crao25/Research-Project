@@ -34,7 +34,7 @@ Retrieval of the following data:
 rnaseq.COAD <- getTCGA(disease = "COAD", data.type = "RNASeq2", type = "count", clinical = TRUE)
 meth.COAD <- getTCGA(disease = "COAD", data.type = "Methylation", type = "450K", clinical = TRUE)
 mut.COAD <- getTCGA(disease = "COAD", data.type = "Mutation", type = "somatic")
-cna_COAD <- getTCGA(disease="COAD", data.type="CNA_SNP")
+cna.COAD <- getTCGA(disease="COAD", data.type="CNA_SNP")
 #cna.COAD <- curatedTCGAData(diseaseCode = "COAD",
                         #assays = "*GISTIC*",
                        # dry.run = FALSE)
@@ -54,8 +54,8 @@ string2 <- colnames(meth.COAD$dat)
 colnames(meth.COAD$dat) <- substring(string2, 1, 12)
 string3 <- colnames(mut.COAD$dat)
 colnames(mut.COAD$dat) <- substring(string3, 1, 12)
-string4 <- colnames(cna_COAD$dat)
-colnames(cna_COAD$dat) <- substring(string4, 1, 12)
+string4 <- colnames(cna.COAD$dat)
+colnames(cna.COAD$dat) <- substring(string4, 1, 12)
 
 ```
 
@@ -69,7 +69,7 @@ Storing the data matrices.
 rnaseq_data <- rnaseq.COAD$dat
 meth_data <- meth.COAD$dat
 mut_data <- mut.COAD$dat
-cna_data <- cna_COAD$dat
+cna_data <- cna.COAD$dat
 #cna_data <- data.matrix(assays(cna.COAD)[[2]])
 ```
 
@@ -86,11 +86,11 @@ clin_data <- data.matrix(rnaseq.COAD$clinical)
 ```
 
 
-```{store datatables, echo=FALSE, message=FALSE}
+```{r store datatables, echo=FALSE, message=FALSE}
 rnaseq.data <- datatable(rnaseq.COAD$dat)
 meth.data <- datatable(meth.COAD$dat)
 mut.data <- datatable(mut.COAD$dat)
-cna.data <- datatable(cna_COAD$dat)
+cna.data <- datatable(cna.COAD$dat)
 ```
 
 ##Get matched tumor and normal samples
@@ -115,9 +115,7 @@ Methylation
 ```{r store meth matched, echo=FALSE}
 meth_tum <- (meth.COAD.tum.norm$primary)
 meth_norm <- (meth.COAD.tum.norm$normal)
-
 ```
-
 
 
 # Session info
@@ -128,6 +126,5 @@ devtools::session_info()
 ```
 
 
-#data matrices instead of datatables without annotations
-#
+
 

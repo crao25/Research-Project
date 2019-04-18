@@ -5,7 +5,7 @@ author: "Chaitra Rao"
 ---
 
 ```{r, cache = TRUE, echo=FALSE}
-knitr::opts_chunk$set(error = TRUE, cache = TRUE, cache.lazy = FALSE)
+knitr::opts_chunk$set(error = TRUE, cache.lazy = FALSE)
 ```
 
 ## Necessary Packages

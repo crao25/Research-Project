@@ -106,6 +106,7 @@ Ensuring duplicate colnames are not present, and taking them out if so
 ```{r datamatrices, echo=FALSE}
 rnaseq_data <- rnaseq.OV$dat
 meth_data <- meth.OV$dat
+meth_data_final <- na.omit(meth_data)
 mut_data <- mut.OV$dat
 ## cna_data <- cna.COAD$dat
 ##cna_data <- data.matrix(assays(cna.COAD)[[2]])
@@ -114,7 +115,7 @@ mut_data <- mut.OV$dat
 
 ```{r mofalist}
 d <- list(rna = rnaseq_data,
-          meth = meth_data,
+          meth = meth_data_final,
           mut = mut_data,
           cna = cna_tumors)
 sapply(d, function(x) table(duplicated(colnames(x))))

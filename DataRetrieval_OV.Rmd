@@ -1,0 +1,152 @@
+---
+title: "Data Retrieval from TCGA (OV)"
+output: html_document
+author: "Chaitra Rao"
+---
+
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE, cache = TRUE, cache.lazy = FALSE)
+```
+
+## Necessary Packages
+
+```{r libraries, message = FALSE}
+suppressPackageStartupMessages(library(RTCGAToolbox))
+suppressPackageStartupMessages(library(TCGA2STAT))
+suppressPackageStartupMessages(library(curatedTCGAData))
+suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
+```
+
+## Retrieval of data
+
+Retrieval of the following data:
+1. RNA Seq gene expression with raw counts
+2. DNA Methylation profiles obtained via HumanMethylation450 BeadChip (probes for ca. 450K CpG sites)
+3. Somatic non-silent mutations
+(4. GISTIC-called CNA data summarized by gene -> the quantitative readout can be discreticized -> Ref. to the datatable)
+
+
+```{r OV_data, echo=FALSE}
+rnaseq.OV <- getTCGA(disease = "OV", data.type = "RNASeq2", type = "count")
+meth.OV <- getTCGA(disease = "OV", data.type = "Methylation", type = "450K")
+mut.OV <- getTCGA(disease = "OV", data.type = "Mutation", type = "somatic")
+cna.OV <- getTCGA(disease="OV", data.type="CNA_SNP", clinical = TRUE)
+#cna.COAD <- curatedTCGAData(diseaseCode = "COAD",
+                        #assays = "*GISTIC*",
+                       # dry.run = FALSE)
+```
+
+```{r beta2m, echo=FALSE, message=FALSE}
+meth.OV$dat <- beta2m(meth.OV$dat)
+```
+
+Print the clinical data in a datamatrix
+
+```{r store_clinical, echo=FALSE}
+clin_data <- data.matrix(cna.OV$clinical)
+```
+
+
+```{r print_datatables, echo=FALSE, message=FALSE}
+DT::datatable(head(rnaseq.OV$dat))
+DT::datatable(head(meth.OV$dat))
+DT::datatable(head(mut.OV$dat))
+DT::datatable(head(cna.OV$dat))
+```
+
+CNA downloaded that way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).
+
+```{r filter_tumor_cna}
+is_tumor <- sapply(strsplit(colnames(cna.OV$dat), '-'), function(x) return(grepl('^01', x[4])))
+cna_tumors <- cna.OV$dat[,colnames(cna.OV$dat)[is_tumor]]
+```
+
+##Get matched tumor and normal samples
+
+```{r get_matched, echo = FALSE}
+rnaseq.OV.tum.norm <- TumorNormalMatch(rnaseq.OV$dat)
+meth.OV.tum.norm <- TumorNormalMatch(meth.OV$dat)
+```
+
+Print the tumor and normal sample in two separate datatables (dim = gene x sample)
+
+RNASeq
+```{r print_matched_rnaseq, echo=FALSE}
+rnaseq_tum <- (rnaseq.OV.tum.norm$primary)
+rnaseq_norm <- (rnaseq.OV.tum.norm$normal)
+```
+
+Methylation
+```{r print_matched_meth, echo=FALSE}
+meth_tum <- (meth.OV.tum.norm$primary)
+meth_norm <- (meth.OV.tum.norm$normal)
+```
+
+```{r trimming, echo=FALSE, message=FALSE}
+string1 <- colnames(rnaseq.OV$dat)
+colnames(rnaseq.OV$dat) <- substring(string1, 1, 12)
+string2 <- colnames(meth.OV$dat)
+colnames(meth.OV$dat) <- substring(string2, 1, 12)
+string3 <- colnames(mut.OV$dat)
+colnames(mut.OV$dat) <- substring(string3, 1, 12)
+## string4 <- colnames(cna.COAD$dat)
+## colnames(cna.COAD$dat) <- substring(string4, 1, 12)
+colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
+
+```
+
+## Data list for MOFA
+
+Ensuring duplicate colnames are not present, and taking them out if so
+
+```{r datamatrices, echo=FALSE}
+rnaseq_data <- rnaseq.OV$dat
+meth_data <- meth.OV$dat
+mut_data <- mut.OV$dat
+## cna_data <- cna.COAD$dat
+##cna_data <- data.matrix(assays(cna.COAD)[[2]])
+
+```
+
+```{r mofalist}
+d <- list(rna = rnaseq_data,
+          meth = meth_data,
+          mut = mut_data,
+          cna = cna_tumors)
+sapply(d, function(x) table(duplicated(colnames(x))))
+## these are duplicated
+sapply(d, function(x) colnames(x)[duplicated(colnames(x))])
+## not going further on the reasons of the duplications: just getting unique stuff
+for (item in names(d)) {
+    d[[item]] <- d[[item]][,unique(colnames(d[[item]]))]
+}
+sapply(d, function(x) table(duplicated(colnames(x))))
+```
+
+```{r columndata}
+cdata = as.data.frame(clin_data)
+
+
+```
+
+MOFA object (suggestion: better do it from a `MultiAssayExperiment`)
+
+```{r mofaobject}
+ov_mae <- MultiAssayExperiment(
+  experiments = d, 
+  colData = cdata)
+
+MOFAobject <- createMOFAobject(ov_mae)
+
+```
+
+
+
+# Session info
+
+```{r sessionInfo, cache = TRUE}
+date()
+devtools::session_info()
+```

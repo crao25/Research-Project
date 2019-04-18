@@ -1,0 +1,130 @@
+
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE)
+```
+
+---
+title: "Data Retrieval from TCGA"
+output: html_document
+author: "Chaitra Rao"
+---
+
+## Necessary Packages
+
+```{r libararies, message = FALSE}
+suppressPackageStartupMessages(library(RTCGAToolbox))
+suppressPackageStartupMessages(library(TCGA2STAT))
+suppressPackageStartupMessages(library(curatedTCGAData))
+suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
+```
+
+## Retrieval of data
+
+Retrieval of the following data:
+1. RNA Seq gene expression with raw counts
+2. DNA Methylation profiles obtained via HumanMethylation450 BeadChip (probes for ca. 450K CpG sites)
+3. Somatic non-silent mutations
+4. GISTIC-called CNA data summarized by gene -> the quantitative readout can be discreticized -> Ref. to the datatable
+
+
+```{r COAD data, echo=FALSE}
+
+rnaseq.COAD <- getTCGA(disease = "COAD", data.type = "RNASeq2", type = "count", clinical = TRUE)
+meth.COAD <- getTCGA(disease = "COAD", data.type = "Methylation", type = "450K", clinical = TRUE)
+mut.COAD <- getTCGA(disease = "COAD", data.type = "Mutation", type = "somatic")
+cna.COAD <- getTCGA(disease="COAD", data.type="CNA_SNP")
+#cna.COAD <- curatedTCGAData(diseaseCode = "COAD",
+                        #assays = "*GISTIC*",
+                       # dry.run = FALSE)
+```
+
+
+
+```{r beta2m, echo=FALSE, message=FALSE}
+meth.COAD$dat <- beta2m(meth.COAD$dat)
+```
+
+
+Store the clinical data in a datamatrix
+
+```{r store clinical, echo=FALSE}
+clin_data <- data.matrix(rnaseq.COAD$clinical)
+```
+
+
+```{r store datatables, echo=FALSE, message=FALSE}
+DT::datatable(head(rnaseq.COAD$dat))
+DT::datatable(head(meth.COAD$dat))
+DT::datatable(head(mut.COAD$dat))
+DT::datatable(head(cna.COAD$dat))
+```
+
+##Get matched tumor and normal samples
+
+```{r get matched tumor/normal smaples, echo = FALSE}
+rnaseq.COAD.tum.norm <- TumorNormalMatch(rnaseq.COAD$dat)
+meth.COAD.tum.norm <- TumorNormalMatch(meth.COAD$dat)
+
+```
+
+
+Store the tumor and normal sample in two separate datatables (dim = gene x sample)
+
+RNASeq
+```{r store rnaseq matched, echo=FALSE}
+rnaseq_tum <- (rnaseq.COAD.tum.norm$primary)
+rnaseq_norm <- (rnaseq.COAD.tum.norm$normal)
+
+```
+
+Methylation
+```{r store meth matched, echo=FALSE}
+meth_tum <- (meth.COAD.tum.norm$primary)
+meth_norm <- (meth.COAD.tum.norm$normal)
+```
+
+
+
+```{r trimming, echo=FALSE, message=FALSE}
+string1 <- colnames(rnaseq.COAD$dat)
+colnames(rnaseq.COAD$dat) <- substring(string1, 1, 12)
+string2 <- colnames(meth.COAD$dat)
+colnames(meth.COAD$dat) <- substring(string2, 1, 12)
+string3 <- colnames(mut.COAD$dat)
+colnames(mut.COAD$dat) <- substring(string3, 1, 12)
+string4 <- colnames(cna.COAD$dat)
+colnames(cna.COAD$dat) <- substring(string4, 1, 12)
+
+```
+
+
+
+## Getting a datamatrix for each kind of data
+
+Storing the data matrices.
+
+```{r datamatrices, echo=FALSE}
+rnaseq_data <- rnaseq.COAD$dat
+meth_data <- meth.COAD$dat
+mut_data <- mut.COAD$dat
+cna_data <- as.matrix(cna.COAD$dat)
+#cna_data <- data.matrix(assays(cna.COAD)[[2]])
+```
+
+```{r combine data into a list, echo=FALSE, message=FALSE}
+COAD_data <- list("rnaseq_data"=rnaseq_data, "meth_data"=meth_data, "mut_data"=mut_data, "cna_data"=cna_data)
+```
+
+
+# Session info
+
+```{r sessionInfo, cache = TRUE}
+date()
+devtools::session_info()
+```
+
+
+
+

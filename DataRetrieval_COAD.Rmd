@@ -5,7 +5,11 @@ author: "Chaitra Rao"
 ---
 
 ```{r, cache = TRUE, echo=FALSE}
+<<<<<<< HEAD
 knitr::opts_chunk$set(error = TRUE, cache = TRUE, cache.lazy = FALSE)
+=======
+knitr::opts_chunk$set(error = TRUE, cache = TRUE)
+>>>>>>> ae12ac69af0c09d932def3b3a48d8128136c5562
 ```
 
 ## Necessary Packages
@@ -94,6 +98,10 @@ colnames(mut.COAD$dat) <- substring(string3, 1, 12)
 ## string4 <- colnames(cna.COAD$dat)
 ## colnames(cna.COAD$dat) <- substring(string4, 1, 12)
 colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
+<<<<<<< HEAD
+=======
+
+>>>>>>> ae12ac69af0c09d932def3b3a48d8128136c5562
 ```
 
 ## Data list for MOFA
@@ -106,6 +114,7 @@ meth_data <- meth.COAD$dat
 mut_data <- mut.COAD$dat
 ## cna_data <- cna.COAD$dat
 ##cna_data <- data.matrix(assays(cna.COAD)[[2]])
+<<<<<<< HEAD
 ```
 
 ```{r mofalist}
@@ -124,6 +133,36 @@ sapply(d, function(x) table(duplicated(colnames(x))))
 ```
 
 MOFA object (suggestion: better do it from a `MultiAssayExperiment`)
+=======
+
+```
+
+```{r mofalist}
+d <- list(rna = rnaseq_data,
+          meth = meth_data,
+          mut = mut_data,
+          cna = cna_tumors)
+
+sapply(d, function(x) table(duplicated(colnames(x))))
+
+## these are duplicated
+sapply(d, function(x) colnames(x)[duplicated(colnames(x))])
+
+## not going further on the reasons of the duplications: just getting unique stuff
+for (item in names(d)) {
+    d[[item]] <- d[[item]][,unique(colnames(d[[item]]))]
+}
+
+sapply(d, function(x) table(duplicated(colnames(x))))
+
+```
+
+MOFA object (suggestion: better do it from a `MultiAssayExperiment`)
+
+```{r mofaobject}
+MOFAobject <- createMOFAobject(d)
+MOFAobject
+>>>>>>> ae12ac69af0c09d932def3b3a48d8128136c5562
 
 ```{r mofaobject}
 MOFAobject <- createMOFAobject(d)

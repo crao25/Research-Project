@@ -17,6 +17,8 @@ suppressPackageStartupMessages(library(curatedTCGAData))
 suppressPackageStartupMessages(library(devtools))
 suppressPackageStartupMessages(library(DT))
 suppressPackageStartupMessages(library(lumi))
+suppressPackageStartupMessages(library(MOFA))
+suppressPackageStartupMessages(library(MultiAssayExperiment))
 ```
 
 ## Retrieval of data

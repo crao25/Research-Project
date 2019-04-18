@@ -1,17 +1,16 @@
-
-```{r, cache = TRUE, echo=FALSE}
-knitr::opts_chunk$set(error = TRUE)
-```
-
 ---
-title: "Data Retrieval from TCGA"
+title: "Data Retrieval from TCGA (COAD)"
 output: html_document
 author: "Chaitra Rao"
 ---
 
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE, cache = TRUE)
+```
+
 ## Necessary Packages
 
-```{r libararies, message = FALSE}
+```{r libraries, message = FALSE}
 suppressPackageStartupMessages(library(RTCGAToolbox))
 suppressPackageStartupMessages(library(TCGA2STAT))
 suppressPackageStartupMessages(library(curatedTCGAData))
@@ -40,52 +39,53 @@ cna.COAD <- getTCGA(disease="COAD", data.type="CNA_SNP")
                        # dry.run = FALSE)
 ```
 
-
-
 ```{r beta2m, echo=FALSE, message=FALSE}
 meth.COAD$dat <- beta2m(meth.COAD$dat)
 ```
 
-
-Store the clinical data in a datamatrix
+Print the clinical data in a datamatrix
 
 ```{r store clinical, echo=FALSE}
 clin_data <- data.matrix(rnaseq.COAD$clinical)
 ```
 
 
-```{r store datatables, echo=FALSE, message=FALSE}
+```{r print_datatables, echo=FALSE, message=FALSE}
 DT::datatable(head(rnaseq.COAD$dat))
 DT::datatable(head(meth.COAD$dat))
 DT::datatable(head(mut.COAD$dat))
 DT::datatable(head(cna.COAD$dat))
 ```
 
+CNA downloaded that way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).
+
+```{r filter_tumor_cna}
+is_tumor <- sapply(strsplit(colnames(cna.COAD$dat), '-'), function(x) return(grepl('^01', x[4])))
+cna_tumors <- cna.COAD$dat[,colnames(cna.COAD$dat)[is_tumor]]
+```
+
 ##Get matched tumor and normal samples
 
-```{r get matched tumor/normal smaples, echo = FALSE}
+```{r get_matched, echo = FALSE}
 rnaseq.COAD.tum.norm <- TumorNormalMatch(rnaseq.COAD$dat)
 meth.COAD.tum.norm <- TumorNormalMatch(meth.COAD$dat)
 
 ```
 
-
-Store the tumor and normal sample in two separate datatables (dim = gene x sample)
+Print the tumor and normal sample in two separate datatables (dim = gene x sample)
 
 RNASeq
-```{r store rnaseq matched, echo=FALSE}
+```{r print_matched, echo=FALSE}
 rnaseq_tum <- (rnaseq.COAD.tum.norm$primary)
 rnaseq_norm <- (rnaseq.COAD.tum.norm$normal)
 
 ```
 
 Methylation
-```{r store meth matched, echo=FALSE}
+```{r print_matched, echo=FALSE}
 meth_tum <- (meth.COAD.tum.norm$primary)
 meth_norm <- (meth.COAD.tum.norm$normal)
 ```
-
-
 
 ```{r trimming, echo=FALSE, message=FALSE}
 string1 <- colnames(rnaseq.COAD$dat)
@@ -94,27 +94,50 @@ string2 <- colnames(meth.COAD$dat)
 colnames(meth.COAD$dat) <- substring(string2, 1, 12)
 string3 <- colnames(mut.COAD$dat)
 colnames(mut.COAD$dat) <- substring(string3, 1, 12)
-string4 <- colnames(cna.COAD$dat)
-colnames(cna.COAD$dat) <- substring(string4, 1, 12)
+## string4 <- colnames(cna.COAD$dat)
+## colnames(cna.COAD$dat) <- substring(string4, 1, 12)
+colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
 
 ```
 
+## Data list for MOFA
 
-
-## Getting a datamatrix for each kind of data
-
-Storing the data matrices.
+Ensuring duplicate colnames are not present, and taking them out if so
 
 ```{r datamatrices, echo=FALSE}
 rnaseq_data <- rnaseq.COAD$dat
 meth_data <- meth.COAD$dat
 mut_data <- mut.COAD$dat
-cna_data <- cna.COAD$dat
-#cna_data <- data.matrix(assays(cna.COAD)[[2]])
+## cna_data <- cna.COAD$dat
+##cna_data <- data.matrix(assays(cna.COAD)[[2]])
+
 ```
 
-```{r combine data into a list, echo=FALSE, message=FALSE}
-data <- list("rnaseq_data"=rnaseq_data, "meth_data"=meth_data, "mut_data"=mut_data, "cna_data"=cna_data)
+```{r mofalist}
+d <- list(rna = rnaseq_data,
+          meth = meth_data,
+          mut = mut_data,
+          cna = cna_tumors)
+
+sapply(d, function(x) table(duplicated(colnames(x))))
+
+## these are duplicated
+sapply(d, function(x) colnames(x)[duplicated(colnames(x))])
+
+## not going further on the reasons of the duplications: just getting unique stuff
+for (item in names(d)) {
+    d[[item]] <- d[[item]][,unique(colnames(d[[item]]))]
+}
+
+sapply(d, function(x) table(duplicated(colnames(x))))
+
+```
+
+MOFA object (suggestion: better do it from a `MultiAssayExperiment`)
+
+```{r mofaobject}
+MOFAobject <- createMOFAobject(d)
+MOFAobject
 
 ```
 

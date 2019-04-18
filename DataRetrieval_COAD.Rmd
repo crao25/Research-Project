@@ -75,14 +75,14 @@ meth.COAD.tum.norm <- TumorNormalMatch(meth.COAD$dat)
 Print the tumor and normal sample in two separate datatables (dim = gene x sample)
 
 RNASeq
-```{r print_matched, echo=FALSE}
+```{r print_matched_rnaseq, echo=FALSE}
 rnaseq_tum <- (rnaseq.COAD.tum.norm$primary)
 rnaseq_norm <- (rnaseq.COAD.tum.norm$normal)
 
 ```
 
 Methylation
-```{r print_matched, echo=FALSE}
+```{r print_matched_meth, echo=FALSE}
 meth_tum <- (meth.COAD.tum.norm$primary)
 meth_norm <- (meth.COAD.tum.norm$normal)
 ```

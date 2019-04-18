@@ -144,6 +144,83 @@ MOFAobject <- createMOFAobject(ov_mae)
 
 ```
 
+# Step 2: Fit the MOFA model
+The next step is to fit the model. 
+This part of the pipeline is implemented in Python, so first of all make sure you have the corresponding package installed (see installation instructions and read the FAQ if you have problems).
+
+## Define options
+
+### Define data options
+The most important options the user needs to define are:  
+
+* **scaleViews**: logical indicating whether to scale views to have unit variance. As long as the scale of the different data sets is not too high, this is not required. Default is `FALSE`.  
+
+* **removeIncompleteSamples**: logical indicating whether to remove samples that are not profiled in all omics. The model can cope with missing assays, so this option is not required. Default is `FALSE`.  
+
+```{r}
+DataOptions <- getDefaultDataOptions()
+DataOptions 
+```
+
+### Define model options
+Next, we define model options. The most important are:  
+
+* **numFactors**: number of factors (default is 0.5 times the number of samples). By default, the model will only remove a factor if it explains exactly zero variance in the data. You can increase this threshold on minimum variance explained by setting `TrainOptions$dropFactorThreshold` to a value higher than zero.  
+
+* **likelihoods**: likelihood for each view. Usually we recommend gaussian for continuous data, bernoulli for binary data and poisson for count data. By default, the model tries to guess it from the data.  
+
+* **sparsity**: do you want to use sparsity? This makes the interpretation easier so it is recommended (Default is `TRUE`).  
+```{r}
+ModelOptions <- getDefaultModelOptions(MOFAobject)
+ModelOptions$numFactors <- 25
+ModelOptions
+```
+
+### Define training options
+Next, we define training options. The most important are:  
+
+* **maxiter**: maximum number of iterations. Ideally set it large enough and use the convergence criterion `TrainOptions$tolerance`.  
+
+* **tolerance**: convergence threshold based on change in the evidence lower bound. For an exploratory run you can use a value between 1.0 and 0.1, but for a "final" model we recommend a value of 0.01.  
+
+* **DropFactorThreshold**: hyperparameter to automatically learn the number of factors based on a minimum variance explained criteria. Factors explaining less than `DropFactorThreshold` fraction of variation in all views will be removed. For example, a value of 0.01 means that factors that explain less than 1\% of variance in all views will be discarded. By default this it zero, meaning that all factors are kept unless they explain no variance at all.  
+
+```{r}
+TrainOptions <- getDefaultTrainOptions()
+# Automatically drop factors that explain less than 2% of variance in all omics
+TrainOptions$DropFactorThreshold <- 0.02
+TrainOptions$seed <- 2017
+TrainOptions
+```
+
+## Prepare MOFA
+`prepareMOFA` internally performs a set of sanity checks and fills the `DataOptions`, `TrainOptions` and `ModelOptions` slots of the `MOFAobject`
+```{r}
+MOFAobject <- prepareMOFA(
+  MOFAobject, 
+  DataOptions = DataOptions,
+  ModelOptions = ModelOptions,
+  TrainOptions = TrainOptions
+)
+```
+
+Optionally, we can choose to regress out some (technical) covariates before training, using a simple linear model. For example, here we can choose to remove the effect of sex. Ideally, all undesired sources of variation should be removed a priori from the model. The reason ebing that, if strong technical factors exist, the model will "focus" on capturing the variability driven by the technical factors, and small sources of biological variability could be missed.  
+(Note: uncomment and running the function below will lead to a slight modification of the results)
+```{r}
+# MOFAobject <- regressCovariates(
+#   object = MOFAobject,
+#   views = c("Drugs","Methylation","mRNA"),
+#   covariates = MOFAobject@InputData$Gender
+# )
+```
+
+## Run MOFA
+Now we are ready to train the `MOFAobject`, which is done with the function `runMOFA`. This step can take some time (around 15 min with default parameters). For illustration we provide an existing trained `MOFAobject`.  
+IMPORTANT NOTE: The software has evolved since the original publication and the results are not 100% reproducible with the last versions. Yet, the output should be very similar (if not improved) to the pre-existent model.
+```{r, eval=FALSE}
+MOFAobject <- runMOFA(MOFAobject)
+```
+
 
 
 # Session info

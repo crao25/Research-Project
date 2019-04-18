@@ -137,7 +137,7 @@ MOFA object (suggestion: better do it from a `MultiAssayExperiment`)
 
 ```
 
-```{r mofalist}
+```{r mof}
 d <- list(rna = rnaseq_data,
           meth = meth_data,
           mut = mut_data,

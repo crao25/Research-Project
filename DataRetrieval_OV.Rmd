@@ -40,8 +40,14 @@ cna.OV <- getTCGA(disease="OV", data.type="CNA_SNP", clinical = TRUE)
                        # dry.run = FALSE)
 ```
 
+```{r meth_downsize}
+meth.var <- apply(meth.OV$dat, 1, var)
+meth.data <- subset(meth.OV$dat, meth.var >= quantile(meth.var, 0.99, na.rm=T) & !is.na(meth.var))
+
+```
+
 ```{r beta2m, echo=FALSE, message=FALSE}
-meth.OV$dat <- beta2m(meth.OV$dat)
+meth.data <- beta2m(meth.data)
 ```
 
 Print the clinical data in a datamatrix
@@ -53,7 +59,7 @@ clin_data <- data.matrix(cna.OV$clinical)
 
 ```{r print_datatables, echo=FALSE, message=FALSE}
 DT::datatable(head(rnaseq.OV$dat))
-DT::datatable(head(meth.OV$dat))
+DT::datatable(head(meth.data))
 DT::datatable(head(mut.OV$dat))
 DT::datatable(head(cna.OV$dat))
 ```
@@ -69,7 +75,7 @@ cna_tumors <- cna.OV$dat[,colnames(cna.OV$dat)[is_tumor]]
 
 ```{r get_matched, echo = FALSE}
 rnaseq.OV.tum.norm <- TumorNormalMatch(rnaseq.OV$dat)
-meth.OV.tum.norm <- TumorNormalMatch(meth.OV$dat)
+meth.OV.tum.norm <- TumorNormalMatch(meth.data)
 ```
 
 Print the tumor and normal sample in two separate datatables (dim = gene x sample)
@@ -89,8 +95,8 @@ meth_norm <- (meth.OV.tum.norm$normal)
 ```{r trimming, echo=FALSE, message=FALSE}
 string1 <- colnames(rnaseq.OV$dat)
 colnames(rnaseq.OV$dat) <- substring(string1, 1, 12)
-string2 <- colnames(meth.OV$dat)
-colnames(meth.OV$dat) <- substring(string2, 1, 12)
+string2 <- colnames(meth.data)
+colnames(meth.data) <- substring(string2, 1, 12)
 string3 <- colnames(mut.OV$dat)
 colnames(mut.OV$dat) <- substring(string3, 1, 12)
 ## string4 <- colnames(cna.COAD$dat)
@@ -105,8 +111,8 @@ Ensuring duplicate colnames are not present, and taking them out if so
 
 ```{r datamatrices, echo=FALSE}
 rnaseq_data <- rnaseq.OV$dat
-meth_data <- meth.OV$dat
-meth_data_final <- na.omit(meth_data)
+meth_data <- meth.data
+meth_data_final <- na.omit(meth.data)
 mut_data <- mut.OV$dat
 ## cna_data <- cna.COAD$dat
 ##cna_data <- data.matrix(assays(cna.COAD)[[2]])

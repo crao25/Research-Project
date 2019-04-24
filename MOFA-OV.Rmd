@@ -47,6 +47,41 @@ plotWeightsHeatmap(
 )
 ```
 
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "meth", 
+  factors = 1:5,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "mut", 
+  factors = 1:5,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "rna", 
+  factors = 1:5,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna", 
+  factor=1
+)
+```
+
 
 # Session info
 

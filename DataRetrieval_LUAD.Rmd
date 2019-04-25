@@ -1,5 +1,5 @@
 ---
-title: "Data Retrieval from TCGA (COAD)"
+title: "Data Retrieval from TCGA (LUAD)"
 output: html_document
 author: "Chaitra Rao"
 ---
@@ -129,6 +129,8 @@ mut_data <- mut.LUAD$dat
 
 ```
 
+####Making a list out of the data retrieved and getting the coldata
+
 ```{r mofalist}
 LUAD_data <- list(rnaseq = rnaseq_data,
           meth = meth_data,
@@ -147,6 +149,8 @@ sapply(LUAD_data, function(x) table(duplicated(colnames(x))))
 ```{r columndata}
 cdata = as.data.frame(clin_data)
 ```
+
+####Getting the MOFAobject
 
 ```{r mofaobject}
 luad_mae <- MultiAssayExperiment(

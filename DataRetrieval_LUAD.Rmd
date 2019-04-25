@@ -1,13 +1,12 @@
-
-```{r, cache = TRUE, echo=FALSE}
-knitr::opts_chunk$set(error = TRUE)
-```
-
 ---
-title: "Data Retrieval from TCGA"
+title: "Data Retrieval from TCGA (COAD)"
 output: html_document
 author: "Chaitra Rao"
 ---
+
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE, cache = TRUE, cache.lazy = FALSE)
+```
 
 ## Necessary Packages
 
@@ -27,21 +26,44 @@ Retrieval of the following data:
 3. Somatic non-silent mutations
 4. GISTIC-called CNA data summarized by gene -> the quantitative readout can be discreticized -> Ref. to the datatable
 
-
-```{r LUAD data, echo=FALSE}
-
-rnaseq.LUAD <- getTCGA(disease = "LUAD", data.type = "RNASeq2", type = "count", clinical = TRUE)
-meth.LUAD <- getTCGA(disease = "LUAD", data.type = "Methylation", type = "450K", clinical = TRUE)
+```{r LUAD_data, echo=FALSE}
+rnaseq.LUAD <- getTCGA(disease = "LUAD", data.type = "RNASeq2", type = "count")
+meth.LUAD <- getTCGA(disease = "LUAD", data.type = "Methylation", type = "450K")
 mut.LUAD <- getTCGA(disease = "LUAD", data.type = "Mutation", type = "somatic")
 cna.LUAD <- curatedTCGAData(diseaseCode = "LUAD",
                         assays = "*GISTIC*",
                         dry.run = FALSE)
+cna_LUAD <- getTCGA(disease="LUAD", data.type="CNA_SNP", clinical = TRUE)
 
 ```
 
-## Getting a datatable for each kind of data
+####Downsize methylation data, include CpG sites that are at the top 1% variance
 
-Storing the data matrices in a datatable.
+```{r meth_downsize}
+meth.var <- apply(meth.LUAD$dat, 1, var)
+meth.data.LUAD <- subset(meth.LUAD$dat, meth.var >= quantile(meth.var, 0.99, na.rm=T) & !is.na(meth.var))
+
+```
+
+####Convert beta to M values
+
+```{r beta2m, echo=FALSE, message=FALSE}
+meth.data.LUAD <- beta2m(meth.data.LUAD)
+```
+
+####Remove NA values from Methylation data
+
+```{r remove_NA, echo=FALSE}
+meth.data.LUAD <- na.omit(meth.data.LUAD)
+```
+
+####Print the clinical data in a datamatrix
+
+```{r store_clinical, echo=FALSE}
+clin_data.LUAD <- data.matrix(cna.COAD$clinical)
+```
+
+#### Getting a datatable for each kind of data
 
 ```{r datatable, echo=FALSE}
 DT::datatable(head(rnaseq.LUAD$dat))
@@ -50,52 +72,88 @@ DT::datatable(head(mut.LUAD$dat))
 DT::datatable(head(assays(cna.LUAD)[[2]]))
 ```
 
+CNA downloaded this way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).
 
-Store the clinical data in a datatable
-
-```{r store clinical, echo=FALSE}
-DT::datatable(head(rnaseq.LUAD$clinical))
+```{r filter_tumor_cna}
+is_tumor <- sapply(strsplit(colnames(assays(cna.LUAD)[[2]]), '-'), function(x) return(grepl('^01', x[4])))
+cna_tumors <- assays(cna.LUAD)[[2]][,colnames(assays(cna.LUAD)[[2]])[is_tumor]]
 ```
 
+####Get matched tumor and normal samples
 
-##Get matched tumor and normal samples
-
-```{r get matched tumor/normal smaples, echo = FALSE}
+```{r get_matched, echo = FALSE}
 rnaseq.LUAD.tum.norm <- TumorNormalMatch(rnaseq.LUAD$dat)
 meth.LUAD.tum.norm <- TumorNormalMatch(meth.LUAD$dat)
-mut.LUAD.tum.norm <- TumorNormalMatch(mut.LUAD$dat)
-cna.LUAD.tum.norm <- TumorNormalMatch(assays(cna.LUAD)[[2]])
 
 ```
 
+####Print the tumor and normal sample in two separate datatables (dim = gene x sample)
 
-Store the tumor and normal sample in two separate datatables (dim = gene x sample)
+#####RNASeq
 
-RNASeq
-```{r store rnaseq matched, echo=FALSE}
-DT::datatable(head(rnaseq.LUAD.tum.norm$primary))
-DT::datatable(head(rnaseq.LUAD.tum.norm$normal))
+```{r print_matched_rnaseq, echo=FALSE}
+rnaseq_tum <- (rnaseq.LUAD.tum.norm$primary)
+rnaseq_norm <- (rnaseq.LUAD.tum.norm$normal)
+```
+
+#####Methylation
+
+```{r print_matched_meth, echo=FALSE}
+meth_tum <- (meth.LUAD.tum.norm$primary)
+meth_norm <- (meth.LUAD.tum.norm$normal)
+```
+
+####Trimming the colnames (TCGA barcodes)
+
+```{r trimming, echo=FALSE, message=FALSE}
+string1 <- colnames(rnaseq.LUAD$dat)
+colnames(rnaseq.LUAD$dat) <- substring(string1, 1, 12)
+string2 <- colnames(meth.data.LUAD)
+colnames(meth.data.LUAD) <- substring(string2, 1, 12)
+string3 <- colnames(mut.LUAD$dat)
+colnames(mut.LUAD$dat) <- substring(string3, 1, 12)
+## string4 <- colnames(cna.COAD$dat)
+## colnames(cna.COAD$dat) <- substring(string4, 1, 12)
+colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
 
 ```
 
-Methylation
-```{r store meth matched, echo=FALSE}
-DT::datatable(head(meth.LUAD.tum.norm$primary))
-DT::datatable(head(meth.LUAD.tum.norm$normal))
+Ensuring duplicate colnames are not present, and taking them out if so
+
+```{r datamatrices, echo=FALSE}
+rnaseq_data <- rnaseq.LUAD$dat
+meth_data <- meth.data.LUAD
+mut_data <- mut.LUAD$dat
+## cna_data <- cna.COAD$dat
+##cna_data <- data.matrix(assays(cna.COAD)[[2]])
 
 ```
 
-Mutation
-```{r store mut matched, echo=FALSE}
-DT::datatable(head(mut.LUAD.tum.norm$primary))
-DT::datatable(head(mut.LUAD.tum.norm$normal))
-
+```{r mofalist}
+LUAD_data <- list(rnaseq = rnaseq_data,
+          meth = meth_data,
+          mut = mut_data,
+          cna = cna_tumors)
+sapply(LUAD_data, function(x) table(duplicated(colnames(x))))
+## these are duplicated
+sapply(LUAD_data, function(x) colnames(x)[duplicated(colnames(x))])
+## not going further on the reasons of the duplications: just getting unique stuff
+for (item in names(LUAD_data)) {
+    LUAD_data[[item]] <- LUAD_data[[item]][,unique(colnames(LUAD_data[[item]]))]
+}
+sapply(LUAD_data, function(x) table(duplicated(colnames(x))))
 ```
 
-CNA
-```{r store cna matched, echo=FALSE}
-DT::datatable(head(cna.LUAD.tum.norm$primary))
-DT::datatable(head(cna.LUAD.tum.norm$normal))
+```{r columndata}
+cdata = as.data.frame(clin_data)
+```
+
+```{r mofaobject}
+luad_mae <- MultiAssayExperiment(
+  experiments = LUAD_data, 
+  colData = cdata)
+
+LUAD_data <- createMOFAobject(luad_mae)
 
 ```
 

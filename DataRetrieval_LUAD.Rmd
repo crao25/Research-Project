@@ -16,6 +16,9 @@ suppressPackageStartupMessages(library(TCGA2STAT))
 suppressPackageStartupMessages(library(curatedTCGAData))
 suppressPackageStartupMessages(library(devtools))
 suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
+suppressPackageStartupMessages(library(MOFA))
+suppressPackageStartupMessages(library(MultiAssayExperiment))
 ```
 
 ## Retrieval of data
@@ -55,6 +58,13 @@ meth.data.LUAD <- beta2m(meth.data.LUAD)
 
 ```{r remove_NA, echo=FALSE}
 meth.data.LUAD <- na.omit(meth.data.LUAD)
+```
+
+####Replace all values <0 by -1 and >0 by 1
+
+```{r merge_classes_cna}
+cna_tumors <- replace((assays(cna.LUAD)[[2]]), (assays(cna.LUAD)[[2]]) < 0, -1)
+cna_tumors <- replace(cna_tumors, cna_tumors > 0, 1)
 ```
 
 ####Print the clinical data in a datamatrix
@@ -118,7 +128,6 @@ colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
 
 ```
 
-Ensuring duplicate colnames are not present, and taking them out if so
 
 ```{r datamatrices, echo=FALSE}
 rnaseq_data <- rnaseq.LUAD$dat
@@ -129,21 +138,22 @@ mut_data <- mut.LUAD$dat
 
 ```
 
-####Making a list out of the data retrieved and getting the coldata
+####Making a list out of the data retrieved and getting the coldata for MOFA
+Ensuring duplicate colnames are not present, and taking them out if so
 
 ```{r mofalist}
-LUAD_data <- list(rnaseq = rnaseq_data,
+LUAD_list <- list(rnaseq = rnaseq_data,
           meth = meth_data,
           mut = mut_data,
           cna = cna_tumors)
-sapply(LUAD_data, function(x) table(duplicated(colnames(x))))
+sapply(LUAD_list, function(x) table(duplicated(colnames(x))))
 ## these are duplicated
-sapply(LUAD_data, function(x) colnames(x)[duplicated(colnames(x))])
+sapply(LUAD_list, function(x) colnames(x)[duplicated(colnames(x))])
 ## not going further on the reasons of the duplications: just getting unique stuff
-for (item in names(LUAD_data)) {
-    LUAD_data[[item]] <- LUAD_data[[item]][,unique(colnames(LUAD_data[[item]]))]
+for (item in names(LUAD_list)) {
+    LUAD_list[[item]] <- LUAD_list[[item]][,unique(colnames(LUAD_list[[item]]))]
 }
-sapply(LUAD_data, function(x) table(duplicated(colnames(x))))
+sapply(LUAD_list, function(x) table(duplicated(colnames(x))))
 ```
 
 ```{r columndata}
@@ -154,7 +164,7 @@ cdata = as.data.frame(clin_data)
 
 ```{r mofaobject}
 luad_mae <- MultiAssayExperiment(
-  experiments = LUAD_data, 
+  experiments = LUAD_list, 
   colData = cdata)
 
 LUAD_data <- createMOFAobject(luad_mae)

@@ -77,8 +77,16 @@ plotWeightsHeatmap(
 ```{r}
 plotTopWeights(
   MOFAobject, 
-  view="cna", 
+  view="meth", 
   factor=1
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="meth", 
+  factor=2
 )
 ```
 

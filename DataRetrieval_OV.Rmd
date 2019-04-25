@@ -151,10 +151,10 @@ OV_data <- createMOFAobject(ov_mae)
 
 ```
 
-```{r save mofaobject}
+#```{r save mofaobject}
 save(OV_data,file="/home/ubuntu/REPOS/tcga/Research-Project")
 
-```
+#```
 # Step 2: Fit the MOFA model
 The next step is to fit the model. 
 This part of the pipeline is implemented in Python, so first of all make sure you have the corresponding package installed (see installation instructions and read the FAQ if you have problems).

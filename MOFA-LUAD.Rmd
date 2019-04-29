@@ -4,6 +4,23 @@ output: html_document
 author: "Chaitra Rao"
 ---
 
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE, cache.lazy = FALSE)
+```
+
+## Necessary Packages
+
+```{r libraries, message = FALSE}
+suppressPackageStartupMessages(library(RTCGAToolbox))
+suppressPackageStartupMessages(library(TCGA2STAT))
+suppressPackageStartupMessages(library(curatedTCGAData))
+suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
+suppressPackageStartupMessages(library(MOFA))
+suppressPackageStartupMessages(library(MultiAssayExperiment))
+```
+
 ## Define options
 
 ### Define data options

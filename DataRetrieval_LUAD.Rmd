@@ -61,8 +61,8 @@ mut.data.LUAD <- subset(mut.LUAD$dat, mut.var >= quantile(mut.var, 0.99, na.rm=T
 ```
 
 ```{r cna_downsize, echo=FALSE}
-cna.var <- apply((assays(cna_LUAD)[[2]]), 1, var)
-cna.data.LUAD <- subset((assays(cna_LUAD)[[2]]), cna.var >= quantile(cna.var, 0.99, na.rm=T) & !is.na(cna.var))
+cna.var <- apply((assays(cna.LUAD)[[2]]), 1, var)
+cna.data.LUAD <- subset((assays(cna.LUAD)[[2]]), cna.var >= quantile(cna.var, 0.99, na.rm=T) & !is.na(cna.var))
 
 ```
 
@@ -89,7 +89,7 @@ cna_tumors <- replace(cna_tumors, cna_tumors > 0, 1)
 ####Print the clinical data in a datamatrix
 
 ```{r store_clinical, echo=FALSE}
-clin_data.LUAD <- data.matrix(cna.LUAD$clinical)
+clin_data.LUAD <- data.matrix(cna_LUAD$clinical)
 ```
 
 #### Getting a datatable for each kind of data

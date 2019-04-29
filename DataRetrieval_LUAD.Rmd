@@ -42,27 +42,27 @@ cna_LUAD <- getTCGA(disease="LUAD", data.type="CNA_SNP", clinical = TRUE)
 
 ####Downsize methylation data, include CpG sites that are at the top 1% variance
 
-```{r meth_downsize}
+```{r meth_downsize, echo = FALSE}
 meth.var <- apply(meth.LUAD$dat, 1, var)
 meth.data.LUAD <- subset(meth.LUAD$dat, meth.var >= quantile(meth.var, 0.99, na.rm=T) & !is.na(meth.var))
 
 ```
 
-```{r rnaseq_downsize}
+```{r rnaseq_downsize, echo = FALSE}
 rnaseq.var <- apply(rnaseq.LUAD$dat, 1, var)
 rnaseq.data.LUAD <- subset(rnaseq.LUAD$dat, rnaseq.var >= quantile(rnaseq.var, 0.99, na.rm=T) & !is.na(rnaseq.var))
 
 ```
 
-```{r mut_downsize}
+```{r mut_downsize, echo = FALSE}
 mut.var <- apply(mut.LUAD$dat, 1, var)
 mut.data.LUAD <- subset(mut.LUAD$dat, mut.var >= quantile(mut.var, 0.99, na.rm=T) & !is.na(mut.var))
 
 ```
 
-```{r cna_downsize}
-cna.var <- apply((assays(cna.LUAD)[[2]]), 1, var)
-cna.data.LUAD <- subset((assays(cna.LUAD)[[2]]), cna.var >= quantile(rnaseq.var, 0.99, na.rm=T) & !is.na(cna.var))
+```{r cna_downsize, echo=FALSE}
+cna.var <- apply((assays(cna_LUAD)[[2]]), 1, var)
+cna.data.LUAD <- subset((assays(cna_LUAD)[[2]]), cna.var >= quantile(cna.var, 0.99, na.rm=T) & !is.na(cna.var))
 
 ```
 
@@ -81,7 +81,7 @@ meth.data.LUAD <- na.omit(meth.data.LUAD)
 
 ####Replace all values <0 by -1 and >0 by 1
 
-```{r merge_classes_cna}
+```{r merge_classes_cna, echo = FALSE}
 cna_tumors <- replace(cna.data.LUAD, cna.data.LUAD < 0, -1)
 cna_tumors <- replace(cna_tumors, cna_tumors > 0, 1)
 ```
@@ -89,7 +89,7 @@ cna_tumors <- replace(cna_tumors, cna_tumors > 0, 1)
 ####Print the clinical data in a datamatrix
 
 ```{r store_clinical, echo=FALSE}
-clin_data.LUAD <- data.matrix(cna.COAD$clinical)
+clin_data.LUAD <- data.matrix(cna.LUAD$clinical)
 ```
 
 #### Getting a datatable for each kind of data
@@ -98,12 +98,12 @@ clin_data.LUAD <- data.matrix(cna.COAD$clinical)
 DT::datatable(head(rnaseq.LUAD$dat))
 DT::datatable(head(meth.LUAD$dat))
 DT::datatable(head(mut.LUAD$dat))
-DT::datatable(head(assays(cna.LUAD)[[2]]))
+DT::datatable(head(assays(cna_LUAD)[[2]]))
 ```
 
 CNA downloaded this way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).
 
-```{r filter_tumor_cna}
+```{r filter_tumor_cna, echo=FALSE}
 is_tumor <- sapply(strsplit(colnames(cna.data.LUAD), '-'), function(x) return(grepl('^01', x[4])))
 cna_tumors <- cna.data.LUAD[,colnames(cna.data.LUAD)[is_tumor]]
 ```
@@ -160,7 +160,7 @@ mut_data <- mut.data.LUAD
 ####Making a list out of the data retrieved and getting the coldata for MOFA
 Ensuring duplicate colnames are not present, and taking them out if so
 
-```{r mofalist}
+```{r mofalist, echo = FALSE}
 LUAD_list <- list(rnaseq = rnaseq_data,
           meth = meth_data,
           mut = mut_data,
@@ -175,13 +175,13 @@ for (item in names(LUAD_list)) {
 sapply(LUAD_list, function(x) table(duplicated(colnames(x))))
 ```
 
-```{r columndata}
-cdata = as.data.frame(clin_data)
+```{r columndata, echo = FALSE}
+cdata = as.data.frame(clin_data.LUAD)
 ```
 
 ####Getting the MOFAobject
 
-```{r mofaobject}
+```{r mofaobject, echo = FALSE}
 luad_mae <- MultiAssayExperiment(
   experiments = LUAD_list, 
   colData = cdata)

@@ -79,12 +79,6 @@ meth.data.LUAD <- beta2m(meth.data.LUAD)
 meth.data.LUAD <- na.omit(meth.data.LUAD)
 ```
 
-####Replace all values <0 by -1 and >0 by 1
-
-```{r merge_classes_cna, echo = FALSE}
-cna_tumors <- replace(cna.data.LUAD, cna.data.LUAD < 0, -1)
-cna_tumors <- replace(cna_tumors, cna_tumors > 0, 1)
-```
 
 ####Print the clinical data in a datamatrix
 
@@ -147,6 +141,13 @@ colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
 
 ```
 
+####Replace all values <0 by -1 and >0 by 1
+
+```{r merge_classes_cna, echo = FALSE}
+cna_tumors_r <- replace(cna_tumors, cna_tumors < 0, -1)
+cna_tumors_r <- replace(cna_tumors_r, cna_tumors_r > 0, 1)
+```
+
 
 ```{r datamatrices, echo=FALSE}
 rnaseq_data <- rnaseq.data.LUAD
@@ -164,7 +165,7 @@ Ensuring duplicate colnames are not present, and taking them out if so
 LUAD_list <- list(rnaseq = rnaseq_data,
           meth = meth_data,
           mut = mut_data,
-          cna = cna_tumors)
+          cna = cna_tumors_r)
 sapply(LUAD_list, function(x) table(duplicated(colnames(x))))
 ## these are duplicated
 sapply(LUAD_list, function(x) colnames(x)[duplicated(colnames(x))])

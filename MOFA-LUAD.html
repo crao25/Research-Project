@@ -231,21 +231,18 @@ DataOptions </code></pre>
 <li><p><strong>likelihoods</strong>: likelihood for each view. Usually we recommend gaussian for continuous data, bernoulli for binary data and poisson for count data. By default, the model tries to guess it from the data.</p></li>
 <li><p><strong>sparsity</strong>: do you want to use sparsity? This makes the interpretation easier so it is recommended (Default is <code>TRUE</code>).</p></li>
 </ul>
-<pre class="r"><code>ModelOptions &lt;- getDefaultModelOptions(LUAD_data)</code></pre>
-<pre><code>## Error in is(object, &quot;MOFAmodel&quot;): object 'LUAD_data' not found</code></pre>
-<pre class="r"><code>ModelOptions$numFactors &lt;- 25</code></pre>
-<pre><code>## Error in ModelOptions$numFactors &lt;- 25: object of type 'closure' is not subsettable</code></pre>
-<pre class="r"><code>ModelOptions</code></pre>
-<pre><code>## nonstandardGenericFunction for &quot;ModelOptions&quot; defined from package &quot;MOFA&quot;
+<pre class="r"><code>ModelOptions &lt;- getDefaultModelOptions(LUAD_data)
+ModelOptions$numFactors &lt;- 25
+ModelOptions</code></pre>
+<pre><code>## $likelihood
+##      rnaseq        meth         mut         cna 
+##  &quot;gaussian&quot;  &quot;gaussian&quot; &quot;bernoulli&quot;  &quot;gaussian&quot; 
 ## 
-## function (object) 
-## {
-##     standardGeneric(&quot;ModelOptions&quot;)
-## }
-## &lt;bytecode: 0x40cd1200&gt;
-## &lt;environment: 0x40ccdba0&gt;
-## Methods may be defined for arguments: object
-## Use  showMethods(&quot;ModelOptions&quot;)  for currently available ones.</code></pre>
+## $numFactors
+## [1] 25
+## 
+## $sparsity
+## [1] TRUE</code></pre>
 </div>
 <div id="define-training-options" class="section level3">
 <h3>Define training options</h3>
@@ -285,19 +282,21 @@ TrainOptions</code></pre>
   ModelOptions = ModelOptions,
   TrainOptions = TrainOptions
 )</code></pre>
-<pre><code>## Error in is(object, &quot;MOFAmodel&quot;): object 'LUAD_data' not found</code></pre>
+<pre><code>## Checking data options...</code></pre>
+<pre><code>## Checking training options...</code></pre>
+<pre><code>## Checking model options...</code></pre>
 </div>
 <div id="run-mofa" class="section level2">
 <h2>Run MOFA</h2>
 <p>Now we are ready to train the <code>MOFAobject</code>, which is done with the function <code>runMOFA</code>. This step can take some time (around 15 min with default parameters). For illustration we provide an existing trained <code>MOFAobject</code>.<br />
 IMPORTANT NOTE: The software has evolved since the original publication and the results are not 100% reproducible with the last versions. Yet, the output should be very similar (if not improved) to the pre-existent model.</p>
 <pre class="r"><code>LUAD_data &lt;- runMOFA(LUAD_data)</code></pre>
-<pre><code>## Error in is(object, &quot;MOFAmodel&quot;): object 'LUAD_data' not found</code></pre>
+<pre><code>## [1] &quot;No output file provided, using a temporary file...&quot;</code></pre>
 </div>
 <div id="session-info" class="section level1">
 <h1>Session info</h1>
 <pre class="r"><code>date()</code></pre>
-<pre><code>## [1] &quot;Mon Apr 29 14:02:50 2019&quot;</code></pre>
+<pre><code>## [1] &quot;Tue Apr 30 14:08:12 2019&quot;</code></pre>
 <pre class="r"><code>devtools::session_info()</code></pre>
 <pre><code>## ─ Session info ──────────────────────────────────────────────────────────
 ##  setting  value                       
@@ -309,7 +308,7 @@ IMPORTANT NOTE: The software has evolved since the original publication and the 
 ##  collate  en_US.UTF-8                 
 ##  ctype    en_US.UTF-8                 
 ##  tz       Etc/UTC                     
-##  date     2019-04-29                  
+##  date     2019-04-30                  
 ## 
 ## ─ Packages ──────────────────────────────────────────────────────────────
 ##  package                * version   date       lib

@@ -98,7 +98,7 @@ clin_data.LUAD <- data.matrix(cna_LUAD$clinical)
 DT::datatable(head(rnaseq.LUAD$dat))
 DT::datatable(head(meth.LUAD$dat))
 DT::datatable(head(mut.LUAD$dat))
-DT::datatable(head(assays(cna_LUAD)[[2]]))
+DT::datatable(head(assays(cna.LUAD)[[2]]))
 ```
 
 CNA downloaded this way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).

@@ -36,7 +36,7 @@ mut.LUAD <- getTCGA(disease = "LUAD", data.type = "Mutation", type = "somatic")
 cna.LUAD <- curatedTCGAData(diseaseCode = "LUAD",
                         assays = "*GISTIC*",
                         dry.run = FALSE)
-cna_LUAD <- getTCGA(disease="LUAD", data.type="CNA_SNP", clinical = TRUE)
+cna_LUAD <- getTCGA(disease="LUAD", data.type="CNA_SNP", clinical = TRUE) #get the clinical data from here
 
 ```
 
@@ -80,7 +80,7 @@ meth.data.LUAD <- na.omit(meth.data.LUAD)
 ```
 
 
-## Print the clinical data in a datamatrix
+## Store the clinical data as a datamatrix
 
 ```{r store_clinical, echo=TRUE}
 clin_data.LUAD <- data.matrix(cna_LUAD$clinical)
@@ -110,7 +110,7 @@ meth.LUAD.tum.norm <- TumorNormalMatch(meth.LUAD$dat)
 
 ```
 
-## Print the tumor and normal sample in two separate datatables (dim = gene x sample)
+## Store the tumor and normal sample in two separate datatables (dim = gene x sample)
 
 ## RNASeq
 
@@ -161,13 +161,15 @@ mut_data <- mut.data.LUAD
 
 ## Making a list out of the data retrieved and getting the coldata for MOFA
 
-Ensuring duplicate colnames are not present, and taking them out if so
 
 ```{r mofalist, echo = TRUE}
 LUAD_list <- list(rnaseq = rnaseq_data,
           meth = meth_data,
           mut = mut_data,
           cna = cna_tumors_r)
+
+
+#Ensuring duplicate colnames are not present, and taking them out if so
 sapply(LUAD_list, function(x) table(duplicated(colnames(x))))
 ## these are duplicated
 sapply(LUAD_list, function(x) colnames(x)[duplicated(colnames(x))])

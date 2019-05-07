@@ -1,0 +1,77 @@
+---
+title: "Fitting the MOFA model and training the MOFA object"
+output: html_document
+author: "Chaitra Rao"
+---
+
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE, cache.lazy = FALSE)
+```
+
+## Necessary Packages
+
+```{r libraries, message = FALSE}
+suppressPackageStartupMessages(library(RTCGAToolbox))
+suppressPackageStartupMessages(library(TCGA2STAT))
+suppressPackageStartupMessages(library(curatedTCGAData))
+suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
+suppressPackageStartupMessages(library(MOFA))
+suppressPackageStartupMessages(library(MultiAssayExperiment))
+```
+
+## Define options
+
+### Define data options
+
+```{r}
+DataOptions <- getDefaultDataOptions()
+DataOptions 
+```
+
+### Define model options
+  
+```{r}
+ModelOptions <- getDefaultModelOptions(LUAD_data)
+ModelOptions$numFactors <- 25
+ModelOptions
+```
+
+### Define training options
+
+```{r}
+TrainOptions <- getDefaultTrainOptions()
+# Automatically drop factors that explain less than 2% of variance in all omics
+TrainOptions$DropFactorThreshold <- 0.02
+TrainOptions$seed <- 2017
+TrainOptions
+```
+
+## Prepare MOFA
+`prepareMOFA` internally performs a set of sanity checks and fills the `DataOptions`, `TrainOptions` and `ModelOptions` slots of the `MOFAobject`
+```{r}
+LUAD_data <- prepareMOFA(
+  LUAD_data, 
+  DataOptions = DataOptions,
+  ModelOptions = ModelOptions,
+  TrainOptions = TrainOptions
+)
+```
+
+## Run MOFA
+Train the `MOFAobject`, with the function `runMOFA`. 
+
+```{r, eval=TRUE}
+LUAD_data <- runMOFA(LUAD_data)
+```
+
+# Session info
+
+```{r sessionInfo, cache = TRUE}
+date()
+devtools::session_info()
+```
+
+
+

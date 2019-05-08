@@ -1,5 +1,5 @@
 ---
-title: "MOFA analysis of LUAD data"
+title: "Application of MOFA on LUAD data"
 output: html_document
 author: "Chaitra Rao"
 ---
@@ -24,9 +24,13 @@ suppressPackageStartupMessages(library(MultiAssayExperiment))
 
 ```{r}
 # Loading an existing trained model
-MOFAobject <- loadModel("file57924b8d549a")
+MOFAobject <- loadModel("LUAD_model.hdf5")
 MOFAobject
 ```
+
+**Part 1: Disentangling the heterogeneity**  
+
+Calculation of variance explained by each factor in each view. This is probably the most important plot that MOFA generates, as it summarises the entire heterogeneity of the dataset in a single figure. Here we can see in which view a factor explains variation which can guide further characterisation of the factors by investigating the weights in those views. The resulting figure gives an overview of which factors are active in which view(s). If a factor is active in more than one view, this means that is capturing shared signal (co-variation) between features of different data modalities. 
 
 ```{r}
 # Calculate the variance explained (R2) per factor in each view 
@@ -38,6 +42,16 @@ head(r2$R2PerFactor)
 plotVarianceExplained(MOFAobject)
 ```
 
+**Part 2: Characterization of individual factors**    
+
+* Inspection of top features with highest loadings: the loading is a measure of feature importance, so features with high loading are the ones driving the heterogeneity captured by the factor.  
+* Feature set enrichment analysis
+* Ordination of samples by factors to reveal clusters and/or gradients: this is similar to what is traditionally done with Principal Component Analysis or t-SNE. The factors can be used in further analyses, for example as predictors, e.g. for predicting clinical outcome or classifying patients, or to control for unwanted sources of variation.
+
+### Inspection of top weighted features in the active views
+To explore a given factor in more detail we can  plot all weights for a single factor using the `plotWeights` function.
+For example, here we plot all weights from Factor 1 in the Mutation data. With `nfeatures` we can set how many features should be labelled (`manual` let's you specify feautres manually to be labelled in the plot.)
+Features with large (absolute) weight on a given factor follow the pattern of covariation associated with the factor. Note that the sign of the weight can only be interpreted relative to the signs of other weights and the factor values.
 ```{r}
 plotWeightsHeatmap(
   MOFAobject, 
@@ -74,6 +88,8 @@ plotWeightsHeatmap(
 )
 ```
 
+If you are only interested in looking at only the top features you can use the `plotTopWeights` function. The sign on the right indicates the direction of the loading (positive/negative).
+
 ```{r}
 plotTopWeights(
   MOFAobject, 
@@ -90,6 +106,7 @@ plotTopWeights(
 )
 ```
 
+Again, features with large weight in a given factor means that they follow the pattern of covariation associated with the factor.
 
 # Session info
 

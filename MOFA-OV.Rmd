@@ -24,7 +24,7 @@ suppressPackageStartupMessages(library(MultiAssayExperiment))
 
 ```{r}
 # Loading an existing trained model
-MOFAobject <- loadModel("file1b9bfee8c0a")
+MOFAobject <- loadModel("OV_model.hdf5")
 MOFAobject
 ```
 

@@ -145,7 +145,7 @@ colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
 
 ```{r merge_classes_cna, echo = FALSE}
 cna_tumors_r <- replace(cna_tumors, cna_tumors < 0, 0)
-cna_tumors_r <- replace(cna_tumors_r, cna_tumors_r >= 0, 1)
+cna_tumors_r <- replace(cna_tumors_r, cna_tumors_r > 0, 1)
 ```
 
 

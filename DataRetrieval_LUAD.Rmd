@@ -40,7 +40,7 @@ cna_LUAD <- getTCGA(disease="LUAD", data.type="CNA_SNP", clinical = TRUE)
 
 ```
 
-####Downsize methylation data, include CpG sites that are at the top 1% variance
+## Downsize methylation data, include CpG sites that are at the top 1% variance
 
 ```{r meth_downsize, echo = FALSE}
 meth.var <- apply(meth.LUAD$dat, 1, var)
@@ -67,26 +67,26 @@ cna.data.LUAD <- subset((assays(cna.LUAD)[[2]]), cna.var >= quantile(cna.var, 0.
 ```
 
 
-####Convert beta to M values
+## Convert beta to M values
 
 ```{r beta2m, echo=FALSE, message=FALSE}
 meth.data.LUAD <- beta2m(meth.data.LUAD)
 ```
 
-####Remove NA values from Methylation data
+## Remove NA values from Methylation data
 
 ```{r remove_NA, echo=FALSE}
 meth.data.LUAD <- na.omit(meth.data.LUAD)
 ```
 
 
-####Print the clinical data in a datamatrix
+## Print the clinical data in a datamatrix
 
 ```{r store_clinical, echo=FALSE}
 clin_data.LUAD <- data.matrix(cna_LUAD$clinical)
 ```
 
-#### Getting a datatable for each kind of data
+## Getting a datatable for each kind of data
 
 ```{r datatable, echo=FALSE}
 DT::datatable(head(rnaseq.LUAD$dat))
@@ -102,7 +102,7 @@ is_tumor <- sapply(strsplit(colnames(cna.data.LUAD), '-'), function(x) return(gr
 cna_tumors <- cna.data.LUAD[,colnames(cna.data.LUAD)[is_tumor]]
 ```
 
-####Get matched tumor and normal samples
+## Get matched tumor and normal samples
 
 ```{r get_matched, echo = FALSE}
 rnaseq.LUAD.tum.norm <- TumorNormalMatch(rnaseq.LUAD$dat)
@@ -110,23 +110,23 @@ meth.LUAD.tum.norm <- TumorNormalMatch(meth.LUAD$dat)
 
 ```
 
-####Print the tumor and normal sample in two separate datatables (dim = gene x sample)
+## Print the tumor and normal sample in two separate datatables (dim = gene x sample)
 
-#####RNASeq
+## RNASeq
 
 ```{r print_matched_rnaseq, echo=FALSE}
 rnaseq_tum <- (rnaseq.LUAD.tum.norm$primary)
 rnaseq_norm <- (rnaseq.LUAD.tum.norm$normal)
 ```
 
-#####Methylation
+## Methylation
 
 ```{r print_matched_meth, echo=FALSE}
 meth_tum <- (meth.LUAD.tum.norm$primary)
 meth_norm <- (meth.LUAD.tum.norm$normal)
 ```
 
-####Trimming the colnames (TCGA barcodes)
+## Trimming the colnames (TCGA barcodes)
 
 ```{r trimming, echo=FALSE, message=FALSE}
 string1 <- colnames(rnaseq.data.LUAD)
@@ -141,11 +141,11 @@ colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
 
 ```
 
-####Replace all values <0 by -1 and >0 by 1
+## Replace all values <0 by -1 and >0 by 1
 
 ```{r merge_classes_cna, echo = FALSE}
 cna_tumors_r <- replace(cna_tumors, cna_tumors < 0, -1)
-cna_tumors_r <- replace(cna_tumors_r, cna_tumors_r > 0, 1)
+cna_tumors_r <- replace(cna_tumors_r, cna_tumors_r >= 0, 1)
 ```
 
 
@@ -158,14 +158,15 @@ mut_data <- mut.data.LUAD
 
 ```
 
-####Making a list out of the data retrieved and getting the coldata for MOFA
-Ensuring duplicate colnames are not present, and taking them out if so
+## Making a list out of the retrieved data and getting the coldata for MOFA
 
 ```{r mofalist, echo = FALSE}
 LUAD_list <- list(rnaseq = rnaseq_data,
           meth = meth_data,
           mut = mut_data,
           cna = cna_tumors_r)
+
+#Ensuring duplicate colnames are not present, and taking them out if so
 sapply(LUAD_list, function(x) table(duplicated(colnames(x))))
 ## these are duplicated
 sapply(LUAD_list, function(x) colnames(x)[duplicated(colnames(x))])
@@ -180,7 +181,7 @@ sapply(LUAD_list, function(x) table(duplicated(colnames(x))))
 cdata = as.data.frame(clin_data.LUAD)
 ```
 
-####Getting the MOFAobject
+## Getting the MOFAobject
 
 ```{r mofaobject, echo = FALSE}
 luad_mae <- MultiAssayExperiment(

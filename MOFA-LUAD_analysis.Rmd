@@ -55,7 +55,16 @@ Features with large (absolute) weight on a given factor follow the pattern of co
 ```{r}
 plotWeightsHeatmap(
   MOFAobject, 
-  view = "cna", 
+  view = "cna_gain", 
+  factors = 1:5,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "cna_loss", 
   factors = 1:5,
   show_colnames = FALSE
 )

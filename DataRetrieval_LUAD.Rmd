@@ -141,11 +141,16 @@ colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
 
 ```
 
-## Replace all values <0 by -1 and >0 by 1
+## Create two matrices for CNA, one for gains and one for losses
 
-```{r merge_classes_cna, echo = FALSE}
-cna_tumors_r <- replace(cna_tumors, cna_tumors < 0, 0)
-cna_tumors_r <- replace(cna_tumors_r, cna_tumors_r > 0, 1)
+```{r merge_classes_cna_gains, echo = FALSE}
+cna_tumors_gain <- replace(cna_tumors, cna_tumors < 0, 0)
+cna_tumors_gain <- replace(cna_tumors_gain, cna_tumors_gain > 0, 1)
+```
+
+```{r merge_classes_cna_losses, echo = FALSE}
+cna_tumors_loss <- replace(cna_tumors, cna_tumors > 0, 0)
+cna_tumors_loss <- replace(cna_tumors_loss, cna_tumors_loss < 0, 1)
 ```
 
 
@@ -164,7 +169,8 @@ mut_data <- mut.data.LUAD
 LUAD_list <- list(rnaseq = rnaseq_data,
           meth = meth_data,
           mut = mut_data,
-          cna = cna_tumors_r)
+          cna_gain = cna_tumors_gain,
+          cna_loss = cna_tumors_loss)
 
 #Ensuring duplicate colnames are not present, and taking them out if so
 sapply(LUAD_list, function(x) table(duplicated(colnames(x))))

@@ -290,8 +290,8 @@ suppressPackageStartupMessages(library(MultiAssayExperiment))</code></pre>
 <div id="trimming-the-colnames-tcga-barcodes" class="section level2">
 <h2>Trimming the colnames (TCGA barcodes)</h2>
 </div>
-<div id="replace-all-values-0-by--1-and-0-by-1" class="section level2">
-<h2>Replace all values &lt;0 by -1 and &gt;0 by 1</h2>
+<div id="create-two-matrices-for-cna-one-for-gains-and-one-for-losses" class="section level2">
+<h2>Create two matrices for CNA, one for gains and one for losses</h2>
 </div>
 <div id="making-a-list-out-of-the-retrieved-data-and-getting-the-coldata-for-mofa" class="section level2">
 <h2>Making a list out of the retrieved data and getting the coldata for MOFA</h2>
@@ -310,7 +310,12 @@ suppressPackageStartupMessages(library(MultiAssayExperiment))</code></pre>
 ## FALSE 
 ##   230 
 ## 
-## $cna
+## $cna_gain
+## 
+## FALSE 
+##   516 
+## 
+## $cna_loss
 ## 
 ## FALSE 
 ##   516</code></pre>
@@ -344,10 +349,13 @@ suppressPackageStartupMessages(library(MultiAssayExperiment))</code></pre>
 ## $mut
 ## character(0)
 ## 
-## $cna
+## $cna_gain
+## character(0)
+## 
+## $cna_loss
 ## character(0)</code></pre>
-<pre><code>## rnaseq.FALSE   meth.FALSE    mut.FALSE    cna.FALSE 
-##          516          461          230          516</code></pre>
+<pre><code>##   rnaseq.FALSE     meth.FALSE      mut.FALSE cna_gain.FALSE cna_loss.FALSE 
+##            516            461            230            516            516</code></pre>
 </div>
 <div id="getting-the-mofaobject" class="section level2">
 <h2>Getting the MOFAobject</h2>

@@ -108,6 +108,15 @@ plotTopWeights(
 
 Again, features with large weight in a given factor means that they follow the pattern of covariation associated with the factor.
 
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "cna_gain", 
+  factor = 1, 
+  features = 20, 
+  show_rownames = FALSE
+)
+```
 # Session info
 
 ```{r sessionInfo, cache = TRUE}

@@ -74,7 +74,7 @@ plotWeightsHeatmap(
 plotWeights(
   MOFAobject, 
   view = "cna_gain", 
-  factor = 1, 
+  factor = 5, 
   nfeatures = 5
 )
 ```
@@ -83,7 +83,7 @@ plotWeights(
 plotWeights(
   MOFAobject, 
   view = "cna_loss", 
-  factor = 2, 
+  factor = 1, 
   nfeatures = 5
 )
 ```
@@ -94,7 +94,7 @@ If you are only interested in looking at only the top features you can use the `
 plotTopWeights(
   MOFAobject, 
   view="cna_gain", 
-  factor=1
+  factor=5
 )
 ```
 
@@ -102,7 +102,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="cna_loss", 
-  factor=2
+  factor=1
 )
 ```
 

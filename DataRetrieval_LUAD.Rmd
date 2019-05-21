@@ -30,7 +30,7 @@ Retrieval of the following data:
 4. GISTIC-called CNA data summarized by gene -> the quantitative readout can be discreticized -> Ref. to the datatable
 
 ```{r LUAD_data, echo=FALSE}
-rnaseq.LUAD <- getTCGA(disease = "LUAD", data.type = "RNASeq", type = "RPKM")
+rnaseq.LUAD <- getTCGA(disease = "LUAD", data.type = "RNASeq2", type = "RPKM")
 meth.LUAD <- getTCGA(disease = "LUAD", data.type = "Methylation", type = "450K")
 mut.LUAD <- getTCGA(disease = "LUAD", data.type = "Mutation", type = "somatic")
 cna.LUAD <- curatedTCGAData(diseaseCode = "LUAD",

@@ -47,7 +47,20 @@ meth.var <- apply(meth.LUAD$dat, 1, var)
 meth.data.LUAD <- subset(meth.LUAD$dat, meth.var >= quantile(meth.var, 0.99, na.rm=T) & !is.na(meth.var))
 ```
 
+```{r rnaseq_downsize, echo = FALSE}
+rnaseq.var <- apply(rnaseq.LUAD$dat, 1, var)
+rnaseq.data.LUAD <- subset(rnaseq.LUAD$dat, rnaseq.var >= quantile(rnaseq.var, 0.99, na.rm=T) & !is.na(rnaseq.var))
+```
 
+```{r mut_downsize, echo = FALSE}
+mut.var <- apply(mut.LUAD$dat, 1, var)
+mut.data.LUAD <- subset(mut.LUAD$dat, mut.var >= quantile(mut.var, 0.99, na.rm=T) & !is.na(mut.var))
+```
+
+```{r cna_downsize, echo=FALSE}
+cna.var <- apply((assays(cna.LUAD)[[2]]), 1, var)
+cna.data.LUAD <- subset((assays(cna.LUAD)[[2]]), cna.var >= quantile(cna.var, 0.99, na.rm=T) & !is.na(cna.var))
+```
 
 ## Convert beta to M values
 
@@ -80,8 +93,8 @@ DT::datatable(head(assays(cna.LUAD)[[2]]))
 CNA downloaded this way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).
 
 ```{r filter_tumor_cna, echo=FALSE}
-is_tumor <- sapply(strsplit(colnames(assays(cna.LUAD)[[2]]), '-'), function(x) return(grepl('^01', x[4])))
-cna_tumors <- assays(cna.LUAD)[[2]][,colnames(assays(cna.LUAD)[[2]])[is_tumor]]
+is_tumor <- sapply(strsplit(colnames(cna.data.LUAD), '-'), function(x) return(grepl('^01', x[4])))
+cna_tumors <- cna.data.LUAD[,colnames(cna.data.LUAD)[is_tumor]]
 ```
 
 ## Get matched tumor and normal samples
@@ -111,12 +124,12 @@ meth_norm <- (meth.LUAD.tum.norm$normal)
 ## Trimming the colnames (TCGA barcodes)
 
 ```{r trimming, echo=FALSE, message=FALSE}
-string1 <- colnames(rnaseq.LUAD$dat)
-colnames(rnaseq.LUAD$dat) <- substring(string1, 1, 12)
+string1 <- colnames(rnaseq.data.LUAD)
+colnames(rnaseq.data.LUAD) <- substring(string1, 1, 12)
 string2 <- colnames(meth.data.LUAD)
 colnames(meth.data.LUAD) <- substring(string2, 1, 12)
-string3 <- colnames(mut.LUAD$dat)
-colnames(mut.LUAD$dat) <- substring(string3, 1, 12)
+string3 <- colnames(mut.data.LUAD)
+colnames(mut.data.LUAD) <- substring(string3, 1, 12)
 ## string4 <- colnames(cna.COAD$dat)
 ## colnames(cna.COAD$dat) <- substring(string4, 1, 12)
 colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
@@ -137,9 +150,9 @@ cna_tumors_loss <- replace(cna_tumors_loss, cna_tumors_loss < 0, 1)
 
 
 ```{r datamatrices, echo=FALSE}
-rnaseq_data <- rnaseq.LUAD$dat
+rnaseq_data <- rnaseq.data.LUAD
 meth_data <- meth.data.LUAD
-mut_data <- mut.LUAD$dat
+mut_data <- mut.data.LUAD
 ## cna_data <- cna.COAD$dat
 ##cna_data <- data.matrix(assays(cna.COAD)[[2]])
 

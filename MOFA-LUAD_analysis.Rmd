@@ -88,14 +88,7 @@ plotWeights(
 )
 ```
 
-```{r}
-plotWeights(
-  MOFAobject, 
-  view = "meth", 
-  factor = 1, 
-  nfeatures = 5
-)
-```
+
 
 If you are only interested in looking at only the top features you can use the `plotTopWeights` function. The sign on the right indicates the direction of the loading (positive/negative).
 

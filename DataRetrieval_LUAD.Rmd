@@ -112,11 +112,11 @@ meth_norm <- (meth.LUAD.tum.norm$normal)
 
 ```{r trimming, echo=FALSE, message=FALSE}
 string1 <- colnames(rnaseq.LUAD$dat)
-colnames(rnaseq.data.LUAD) <- substring(string1, 1, 12)
+colnames(rnaseq.LUAD$dat) <- substring(string1, 1, 12)
 string2 <- colnames(meth.data.LUAD)
 colnames(meth.data.LUAD) <- substring(string2, 1, 12)
 string3 <- colnames(mut.LUAD$dat)
-colnames(mut.data.LUAD) <- substring(string3, 1, 12)
+colnames(mut.LUAD$dat) <- substring(string3, 1, 12)
 ## string4 <- colnames(cna.COAD$dat)
 ## colnames(cna.COAD$dat) <- substring(string4, 1, 12)
 colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)

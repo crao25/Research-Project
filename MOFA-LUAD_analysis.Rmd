@@ -101,8 +101,32 @@ plotTopWeights(
 ```{r}
 plotTopWeights(
   MOFAobject, 
+  view="cna_gain", 
+  factor=5
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
   view="cna_loss", 
-  factor=1
+  factor=2
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna_loss", 
+  factor=7
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view = "meth", 
+  factor = 3
 )
 ```
 
@@ -110,23 +134,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="meth", 
-  factor=1
-)
-```
-
-```{r}
-plotTopWeights(
-  MOFAobject, 
-  view = "rnaseq", 
-  factor = 1
-)
-```
-
-```{r}
-plotTopWeights(
-  MOFAobject, 
-  view="mut", 
-  factor=1
+  factor=4
 )
 ```
 

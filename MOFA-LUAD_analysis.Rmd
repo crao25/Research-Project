@@ -113,7 +113,7 @@ Again, features with large weight in a given factor means that they follow the p
 ```{r}
 plotDataHeatmap(
   MOFAobject, 
-  view = "cna_gain", 
+  view = "meth", 
   factor = 1, 
   features = 20, 
   show_rownames = FALSE

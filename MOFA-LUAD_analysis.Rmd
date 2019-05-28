@@ -79,6 +79,28 @@ plotWeightsHeatmap(
 )
 ```
 
+```{r}
+plotDataHeatmap(
+  MOFAobject,
+  view = "cna_gain",
+  factor = 1,
+  features = 20,
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject,
+  view = "cna_loss",
+  factor = 2,
+  features = 20,
+  show_rownames = FALSE
+)
+```
+
+
+
 
 
 

@@ -29,7 +29,7 @@ Retrieval of the following data:
 3. Somatic non-silent mutations
 4. GISTIC-called CNA data summarized by gene -> the quantitative readout can be discreticized -> Ref. to the datatable
 
-```{r LUAD_data, echo=FALSE}
+```{r COAD_data, echo=FALSE}
 rnaseq.COAD <- getTCGA(disease = "COAD", data.type = "RNASeq2", type = "RPKM")
 meth.COAD <- getTCGA(disease = "COAD", data.type = "Methylation", type = "450K")
 mut.COAD <- getTCGA(disease = "COAD", data.type = "Mutation", type = "somatic")

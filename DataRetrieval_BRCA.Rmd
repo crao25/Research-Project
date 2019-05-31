@@ -1,0 +1,205 @@
+---
+title: "Data Retrieval from TCGA (BRCA)"
+output: html_document
+author: "Chaitra Rao"
+---
+
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE, cache = TRUE, cache.lazy = FALSE)
+```
+
+## Necessary Packages
+
+```{r libraries, message = FALSE}
+suppressPackageStartupMessages(library(RTCGAToolbox))
+suppressPackageStartupMessages(library(TCGA2STAT))
+suppressPackageStartupMessages(library(curatedTCGAData))
+suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
+suppressPackageStartupMessages(library(MOFA))
+suppressPackageStartupMessages(library(MultiAssayExperiment))
+```
+
+## Retrieval of data
+
+Retrieval of the following data:
+1. RNA Seq gene expression with raw counts
+2. DNA Methylation profiles obtained via HumanMethylation450 BeadChip (probes for ca. 450K CpG sites)
+3. Somatic non-silent mutations
+4. GISTIC-called CNA data summarized by gene -> the quantitative readout can be discreticized -> Ref. to the datatable
+
+```{r BRCA_data, echo=FALSE}
+rnaseq.BRCA <- getTCGA(disease = "BRCA", data.type = "RNASeq2", type = "RPKM")
+meth.BRCA <- getTCGA(disease = "BRCA", data.type = "Methylation", type = "450K")
+mut.BRCA <- getTCGA(disease = "BRCA", data.type = "Mutation", type = "somatic")
+cna.BRCA <- curatedTCGAData(diseaseCode = "BRCA",
+                        assays = "*GISTIC*",
+                        dry.run = FALSE)
+cna_BRCA <- getTCGA(disease="BRCA", data.type="CNA_SNP", clinical = TRUE)
+
+```
+
+## Downsize methylation data, include CpG sites that are at the top 1% variance
+
+```{r meth_downsize, echo = FALSE}
+meth.var <- apply(meth.BRCA$dat, 1, var)
+meth.data.BRCA <- subset(meth.BRCA$dat, meth.var >= quantile(meth.var, 0.99, na.rm=T) & !is.na(meth.var))
+```
+
+```{r rnaseq_downsize, echo = FALSE}
+rnaseq.var <- apply(rnaseq.BRCA$dat, 1, var)
+rnaseq.data.BRCA <- subset(rnaseq.BRCA$dat, rnaseq.var >= quantile(rnaseq.var, 0.99, na.rm=T) & !is.na(rnaseq.var))
+```
+
+```{r mut_downsize, echo = FALSE}
+mut.var <- apply(mut.BRCA$dat, 1, var)
+mut.data.BRCA <- subset(mut.BRCA$dat, mut.var >= quantile(mut.var, 0.99, na.rm=T) & !is.na(mut.var))
+```
+
+```{r cna_downsize, echo=FALSE}
+cna.var <- apply((assays(cna.BRCA)[[2]]), 1, var)
+cna.data.BRCA <- subset((assays(cna.BRCA)[[2]]), cna.var >= quantile(cna.var, 0.99, na.rm=T) & !is.na(cna.var))
+```
+
+## Convert beta to M values
+
+```{r beta2m, echo=FALSE, message=FALSE}
+meth.data.BRCA <- beta2m(meth.data.BRCA)
+```
+
+## Remove NA values from Methylation data
+
+```{r remove_NA, echo=FALSE}
+meth.data.BRCA <- na.omit(meth.data.BRCA)
+```
+
+
+## Print the clinical data in a datamatrix
+
+```{r store_clinical, echo=FALSE}
+clin_data.BRCA <- data.matrix(cna_BRCA$clinical)
+```
+
+## Getting a datatable for each kind of data
+
+```{r datatable, echo=FALSE}
+DT::datatable(head(rnaseq.BRCA$dat))
+DT::datatable(head(meth.BRCA$dat))
+DT::datatable(head(mut.BRCA$dat))
+DT::datatable(head(assays(cna.BRCA)[[2]]))
+```
+
+CNA downloaded this way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).
+
+```{r filter_tumor_cna, echo=FALSE}
+is_tumor <- sapply(strsplit(colnames(cna.data.BRCA), '-'), function(x) return(grepl('^01', x[4])))
+cna_tumors <- cna.data.BRCA[,colnames(cna.data.BRCA)[is_tumor]]
+```
+
+## Get matched tumor and normal samples
+
+```{r get_matched, echo = FALSE}
+rnaseq.BRCA.tum.norm <- TumorNormalMatch(rnaseq.BRCA$dat)
+meth.BRCA.tum.norm <- TumorNormalMatch(meth.BRCA$dat)
+
+```
+
+## Print the tumor and normal sample in two separate datatables (dim = gene x sample)
+
+## RNASeq
+
+```{r print_matched_rnaseq, echo=FALSE}
+rnaseq_tum <- (rnaseq.BRCA.tum.norm$primary)
+rnaseq_norm <- (rnaseq.BRCA.tum.norm$normal)
+```
+
+## Methylation
+
+```{r print_matched_meth, echo=FALSE}
+meth_tum <- (meth.BRCA.tum.norm$primary)
+meth_norm <- (meth.BRCA.tum.norm$normal)
+```
+
+## Trimming the colnames (TCGA barcodes)
+
+```{r trimming, echo=FALSE, message=FALSE}
+string1 <- colnames(rnaseq.data.BRCA)
+colnames(rnaseq.data.BRCA) <- substring(string1, 1, 12)
+string2 <- colnames(meth.data.BRCA)
+colnames(meth.data.BRCA) <- substring(string2, 1, 12)
+string3 <- colnames(mut.data.BRCA)
+colnames(mut.data.BRCA) <- substring(string3, 1, 12)
+## string4 <- colnames(cna.BRCA$dat)
+## colnames(cna.BRCA$dat) <- substring(string4, 1, 12)
+colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
+
+```
+
+## Create two matrices for CNA, one for gains and one for losses
+
+```{r merge_classes_cna_gains, echo = FALSE}
+cna_tumors_gain <- replace(cna_tumors, cna_tumors < 0, 0)
+cna_tumors_gain <- replace(cna_tumors_gain, cna_tumors_gain > 0, 1)
+```
+
+```{r merge_classes_cna_losses, echo = FALSE}
+cna_tumors_loss <- replace(cna_tumors, cna_tumors > 0, 0)
+cna_tumors_loss <- replace(cna_tumors_loss, cna_tumors_loss < 0, 1)
+```
+
+
+```{r datamatrices, echo=FALSE}
+rnaseq_data <- rnaseq.data.BRCA
+meth_data <- meth.data.BRCA
+mut_data <- mut.data.BRCA
+## cna_data <- cna.BRCA$dat
+##cna_data <- data.matrix(assays(cna.BRCA)[[2]])
+
+```
+
+## Making a list out of the retrieved data and getting the coldata for MOFA
+
+```{r mofalist, echo = FALSE}
+BRCA_list <- list(rnaseq = rnaseq_data,
+          meth = meth_data,
+          mut = mut_data,
+          cna_gain = cna_tumors_gain,
+          cna_loss = cna_tumors_loss)
+
+#Ensuring duplicate colnames are not present, and taking them out if so
+sapply(BRCA_list, function(x) table(duplicated(colnames(x))))
+## these are duplicated
+sapply(BRCA_list, function(x) colnames(x)[duplicated(colnames(x))])
+## not going further on the reasons of the duplications: just getting unique stuff
+for (item in names(BRCA_list)) {
+    BRCA_list[[item]] <- BRCA_list[[item]][,unique(colnames(BRCA_list[[item]]))]
+}
+sapply(BRCA_list, function(x) table(duplicated(colnames(x))))
+```
+
+```{r columndata, echo = FALSE}
+cdata = as.data.frame(clin_data.BRCA)
+```
+
+## Getting the MOFAobject
+
+```{r mofaobject, echo = FALSE}
+brca_mae <- MultiAssayExperiment(
+  experiments = BRCA_list, 
+  colData = cdata)
+
+BRCA_data <- createMOFAobject(brca_mae)
+
+```
+
+# Session info
+
+```{r sessionInfo, cache = TRUE}
+date()
+devtools::session_info()
+```
+
+
+
+

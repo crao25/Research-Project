@@ -185,7 +185,7 @@ cdata = as.data.frame(clin_data.COAD)
 ## Getting the MOFAobject
 
 ```{r mofaobject, echo = FALSE}
-luad_mae <- MultiAssayExperiment(
+coad_mae <- MultiAssayExperiment(
   experiments = COAD_list, 
   colData = cdata)
 

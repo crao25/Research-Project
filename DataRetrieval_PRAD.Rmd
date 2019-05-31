@@ -1,22 +1,24 @@
-
-```{r, cache = TRUE, echo=FALSE}
-knitr::opts_chunk$set(error = TRUE)
-```
-
 ---
-title: "Data Retrieval from TCGA"
+title: "Data Retrieval from TCGA (PRAD)"
 output: html_document
 author: "Chaitra Rao"
 ---
 
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE, cache = TRUE, cache.lazy = FALSE)
+```
+
 ## Necessary Packages
 
-```{r libararies, message = FALSE}
+```{r libraries, message = FALSE}
 suppressPackageStartupMessages(library(RTCGAToolbox))
 suppressPackageStartupMessages(library(TCGA2STAT))
 suppressPackageStartupMessages(library(curatedTCGAData))
 suppressPackageStartupMessages(library(devtools))
 suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
+suppressPackageStartupMessages(library(MOFA))
+suppressPackageStartupMessages(library(MultiAssayExperiment))
 ```
 
 ## Retrieval of data
@@ -27,21 +29,59 @@ Retrieval of the following data:
 3. Somatic non-silent mutations
 4. GISTIC-called CNA data summarized by gene -> the quantitative readout can be discreticized -> Ref. to the datatable
 
-
-```{r PRAD data, echo=FALSE}
-
-rnaseq.PRAD <- getTCGA(disease = "PRAD", data.type = "RNASeq2", type = "count", clinical = TRUE)
-meth.PRAD <- getTCGA(disease = "PRAD", data.type = "Methylation", type = "450K", clinical = TRUE)
+```{r PRAD_data, echo=FALSE}
+rnaseq.PRAD <- getTCGA(disease = "PRAD", data.type = "RNASeq2", type = "RPKM")
+meth.PRAD <- getTCGA(disease = "PRAD", data.type = "Methylation", type = "450K")
 mut.PRAD <- getTCGA(disease = "PRAD", data.type = "Mutation", type = "somatic")
 cna.PRAD <- curatedTCGAData(diseaseCode = "PRAD",
                         assays = "*GISTIC*",
                         dry.run = FALSE)
+cna_PRAD <- getTCGA(disease="PRAD", data.type="CNA_SNP", clinical = TRUE)
 
 ```
 
-## Getting a datatable for each kind of data
+## Downsize methylation data, include CpG sites that are at the top 1% variance
 
-Storing the data matrices in a datatable.
+```{r meth_downsize, echo = FALSE}
+meth.var <- apply(meth.PRAD$dat, 1, var)
+meth.data.PRAD <- subset(meth.PRAD$dat, meth.var >= quantile(meth.var, 0.99, na.rm=T) & !is.na(meth.var))
+```
+
+```{r rnaseq_downsize, echo = FALSE}
+rnaseq.var <- apply(rnaseq.PRAD$dat, 1, var)
+rnaseq.data.PRAD <- subset(rnaseq.PRAD$dat, rnaseq.var >= quantile(rnaseq.var, 0.99, na.rm=T) & !is.na(rnaseq.var))
+```
+
+```{r mut_downsize, echo = FALSE}
+mut.var <- apply(mut.PRAD$dat, 1, var)
+mut.data.PRAD <- subset(mut.PRAD$dat, mut.var >= quantile(mut.var, 0.99, na.rm=T) & !is.na(mut.var))
+```
+
+```{r cna_downsize, echo=FALSE}
+cna.var <- apply((assays(cna.PRAD)[[2]]), 1, var)
+cna.data.PRAD <- subset((assays(cna.PRAD)[[2]]), cna.var >= quantile(cna.var, 0.99, na.rm=T) & !is.na(cna.var))
+```
+
+## Convert beta to M values
+
+```{r beta2m, echo=FALSE, message=FALSE}
+meth.data.PRAD <- beta2m(meth.data.PRAD)
+```
+
+## Remove NA values from Methylation data
+
+```{r remove_NA, echo=FALSE}
+meth.data.PRAD <- na.omit(meth.data.PRAD)
+```
+
+
+## Print the clinical data in a datamatrix
+
+```{r store_clinical, echo=FALSE}
+clin_data.PRAD <- data.matrix(cna_PRAD$clinical)
+```
+
+## Getting a datatable for each kind of data
 
 ```{r datatable, echo=FALSE}
 DT::datatable(head(rnaseq.PRAD$dat))
@@ -50,52 +90,106 @@ DT::datatable(head(mut.PRAD$dat))
 DT::datatable(head(assays(cna.PRAD)[[2]]))
 ```
 
+CNA downloaded this way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).
 
-Store the clinical data in a datatable
-
-```{r store clinical, echo=FALSE}
-DT::datatable(head(rnaseq.PRAD$clinical))
+```{r filter_tumor_cna, echo=FALSE}
+is_tumor <- sapply(strsplit(colnames(cna.data.PRAD), '-'), function(x) return(grepl('^01', x[4])))
+cna_tumors <- cna.data.PRAD[,colnames(cna.data.PRAD)[is_tumor]]
 ```
 
+## Get matched tumor and normal samples
 
-##Get matched tumor and normal samples
-
-```{r get matched tumor/normal smaples, echo = FALSE}
+```{r get_matched, echo = FALSE}
 rnaseq.PRAD.tum.norm <- TumorNormalMatch(rnaseq.PRAD$dat)
 meth.PRAD.tum.norm <- TumorNormalMatch(meth.PRAD$dat)
-mut.PRAD.tum.norm <- TumorNormalMatch(mut.PRAD$dat)
-cna.PRAD.tum.norm <- TumorNormalMatch(assays(cna.PRAD)[[2]])
 
 ```
 
+## Print the tumor and normal sample in two separate datatables (dim = gene x sample)
 
-Store the tumor and normal sample in two separate datatables (dim = gene x sample)
+## RNASeq
 
-RNASeq
-```{r store rnaseq matched, echo=FALSE}
-DT::datatable(head(rnaseq.PRAD.tum.norm$primary))
-DT::datatable(head(rnaseq.PRAD.tum.norm$normal))
+```{r print_matched_rnaseq, echo=FALSE}
+rnaseq_tum <- (rnaseq.PRAD.tum.norm$primary)
+rnaseq_norm <- (rnaseq.PRAD.tum.norm$normal)
+```
+
+## Methylation
+
+```{r print_matched_meth, echo=FALSE}
+meth_tum <- (meth.PRAD.tum.norm$primary)
+meth_norm <- (meth.PRAD.tum.norm$normal)
+```
+
+## Trimming the colnames (TCGA barcodes)
+
+```{r trimming, echo=FALSE, message=FALSE}
+string1 <- colnames(rnaseq.data.PRAD)
+colnames(rnaseq.data.PRAD) <- substring(string1, 1, 12)
+string2 <- colnames(meth.data.PRAD)
+colnames(meth.data.PRAD) <- substring(string2, 1, 12)
+string3 <- colnames(mut.data.PRAD)
+colnames(mut.data.PRAD) <- substring(string3, 1, 12)
+## string4 <- colnames(cna.COAD$dat)
+## colnames(cna.COAD$dat) <- substring(string4, 1, 12)
+colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
 
 ```
 
-Methylation
-```{r store meth matched, echo=FALSE}
-DT::datatable(head(meth.PRAD.tum.norm$primary))
-DT::datatable(head(meth.PRAD.tum.norm$normal))
+## Create two matrices for CNA, one for gains and one for losses
+
+```{r merge_classes_cna_gains, echo = FALSE}
+cna_tumors_gain <- replace(cna_tumors, cna_tumors < 0, 0)
+cna_tumors_gain <- replace(cna_tumors_gain, cna_tumors_gain > 0, 1)
+```
+
+```{r merge_classes_cna_losses, echo = FALSE}
+cna_tumors_loss <- replace(cna_tumors, cna_tumors > 0, 0)
+cna_tumors_loss <- replace(cna_tumors_loss, cna_tumors_loss < 0, 1)
+```
+
+
+```{r datamatrices, echo=FALSE}
+rnaseq_data <- rnaseq.data.PRAD
+meth_data <- meth.data.PRAD
+mut_data <- mut.data.PRAD
+## cna_data <- cna.COAD$dat
+##cna_data <- data.matrix(assays(cna.COAD)[[2]])
 
 ```
 
-Mutation
-```{r store mut matched, echo=FALSE}
-DT::datatable(head(mut.PRAD.tum.norm$primary))
-DT::datatable(head(mut.PRAD.tum.norm$normal))
+## Making a list out of the retrieved data and getting the coldata for MOFA
 
+```{r mofalist, echo = FALSE}
+PRAD_list <- list(rnaseq = rnaseq_data,
+          meth = meth_data,
+          mut = mut_data,
+          cna_gain = cna_tumors_gain,
+          cna_loss = cna_tumors_loss)
+
+#Ensuring duplicate colnames are not present, and taking them out if so
+sapply(PRAD_list, function(x) table(duplicated(colnames(x))))
+## these are duplicated
+sapply(PRAD_list, function(x) colnames(x)[duplicated(colnames(x))])
+## not going further on the reasons of the duplications: just getting unique stuff
+for (item in names(PRAD_list)) {
+    PRAD_list[[item]] <- PRAD_list[[item]][,unique(colnames(PRAD_list[[item]]))]
+}
+sapply(PRAD_list, function(x) table(duplicated(colnames(x))))
 ```
 
-CNA
-```{r store cna matched, echo=FALSE}
-DT::datatable(head(cna.PRAD.tum.norm$primary))
-DT::datatable(head(cna.PRAD.tum.norm$normal))
+```{r columndata, echo = FALSE}
+cdata = as.data.frame(clin_data.PRAD)
+```
+
+## Getting the MOFAobject
+
+```{r mofaobject, echo = FALSE}
+prad_mae <- MultiAssayExperiment(
+  experiments = PRAD_list, 
+  colData = cdata)
+
+PRAD_data <- createMOFAobject(prad_mae)
 
 ```
 

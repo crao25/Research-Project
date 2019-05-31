@@ -161,7 +161,7 @@ mut_data <- mut.data.COAD
 ## Making a list out of the retrieved data and getting the coldata for MOFA
 
 ```{r mofalist, echo = FALSE}
-LUAD_list <- list(rnaseq = rnaseq_data,
+COAD_list <- list(rnaseq = rnaseq_data,
           meth = meth_data,
           mut = mut_data,
           cna_gain = cna_tumors_gain,

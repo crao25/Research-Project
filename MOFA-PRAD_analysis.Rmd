@@ -1,0 +1,176 @@
+---
+title: "Application of MOFA on COAD data"
+output: html_document
+author: "Chaitra Rao"
+---
+
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE, cache.lazy = FALSE)
+```
+
+## Necessary Packages
+
+```{r libraries, message = FALSE}
+suppressPackageStartupMessages(library(RTCGAToolbox))
+suppressPackageStartupMessages(library(TCGA2STAT))
+suppressPackageStartupMessages(library(curatedTCGAData))
+suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
+suppressPackageStartupMessages(library(MOFA))
+suppressPackageStartupMessages(library(MultiAssayExperiment))
+```
+
+
+```{r}
+# Loading an existing trained model
+MOFAobject <- loadModel("PRAD_model.hdf5")
+MOFAobject
+```
+
+## Part 1: Disentangling the heterogeneity: calculation of variance explained by each factor in each view
+
+```{r}
+# Calculate the variance explained (R2) per factor in each view 
+r2 <- calculateVarianceExplained(MOFAobject)
+r2$R2Total
+# Variance explained by each factor in each view
+head(r2$R2PerFactor)
+# Plot it
+plotVarianceExplained(MOFAobject)
+```
+
+## Part 2: Characterisation of individual factors
+### Inspection of top weighted features in the active views
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "cna_gain", 
+  factors = 1:10,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "cna_loss", 
+  factors = 1:10,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "meth", 
+  factors = 1:10,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "rnaseq", 
+  factors = 1:10,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "mut", 
+  factors = 1:10,
+  show_colnames = FALSE
+)
+```
+
+If you are only interested in looking at only the top features you can use the `plotTopWeights` function.  
+For example, here we plot the mutations with largest loadings on Factor 1. The sign on the right indicates the direction of the loading (positive/negative).
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna_gain", 
+  factor=1
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna_gain", 
+  factor=5
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna_loss", 
+  factor=2
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna_loss", 
+  factor=7
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view = "meth", 
+  factor = 3
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="meth", 
+  factor=4
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "cna_gain", 
+  factor = 1, 
+  features = 20, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "cna_loss", 
+  factor = 2, 
+  features = 20, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "meth", 
+  factor = 3, 
+  features = 20, 
+  show_rownames = FALSE
+)
+```
+
+# Session info
+
+```{r sessionInfo, cache = TRUE}
+date()
+devtools::session_info()
+```

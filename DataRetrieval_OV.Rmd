@@ -5,7 +5,7 @@ author: "Chaitra Rao"
 ---
 
 ```{r, cache = TRUE, echo=FALSE}
-knitr::opts_chunk$set(error = TRUE, cache.lazy = FALSE)
+knitr::opts_chunk$set(error = TRUE, cache = TRUE, cache.lazy = FALSE)
 ```
 
 ## Necessary Packages
@@ -27,218 +27,171 @@ Retrieval of the following data:
 1. RNA Seq gene expression with raw counts
 2. DNA Methylation profiles obtained via HumanMethylation450 BeadChip (probes for ca. 450K CpG sites)
 3. Somatic non-silent mutations
-(4. GISTIC-called CNA data summarized by gene -> the quantitative readout can be discreticized -> Ref. to the datatable)
-
+4. GISTIC-called CNA data summarized by gene -> the quantitative readout can be discreticized -> Ref. to the datatable
 
 ```{r OV_data, echo=FALSE}
-rnaseq.OV <- getTCGA(disease = "OV", data.type = "RNASeq2", type = "count")
+rnaseq.OV <- getTCGA(disease = "OV", data.type = "RNASeq2", type = "RPKM")
 meth.OV <- getTCGA(disease = "OV", data.type = "Methylation", type = "450K")
 mut.OV <- getTCGA(disease = "OV", data.type = "Mutation", type = "somatic")
-cna.OV <- getTCGA(disease="OV", data.type="CNA_SNP", clinical = TRUE)
-#cna.COAD <- curatedTCGAData(diseaseCode = "COAD",
-                        #assays = "*GISTIC*",
-                       # dry.run = FALSE)
+cna.OV <- curatedTCGAData(diseaseCode = "OV",
+                        assays = "*GISTIC*",
+                        dry.run = FALSE)
+cna_OV <- getTCGA(disease="OV", data.type="CNA_SNP", clinical = TRUE)
+
 ```
 
-```{r meth_downsize}
+## Downsize methylation data, include CpG sites that are at the top 1% variance
+
+```{r meth_downsize, echo = FALSE}
 meth.var <- apply(meth.OV$dat, 1, var)
-meth.data <- subset(meth.OV$dat, meth.var >= quantile(meth.var, 0.99, na.rm=T) & !is.na(meth.var))
-
+meth.data.OV <- subset(meth.OV$dat, meth.var >= quantile(meth.var, 0.99, na.rm=T) & !is.na(meth.var))
 ```
+
+```{r rnaseq_downsize, echo = FALSE}
+rnaseq.var <- apply(rnaseq.OV$dat, 1, var)
+rnaseq.data.OV <- subset(rnaseq.OV$dat, rnaseq.var >= quantile(rnaseq.var, 0.99, na.rm=T) & !is.na(rnaseq.var))
+```
+
+```{r mut_downsize, echo = FALSE}
+mut.var <- apply(mut.OV$dat, 1, var)
+mut.data.OV <- subset(mut.OV$dat, mut.var >= quantile(mut.var, 0.99, na.rm=T) & !is.na(mut.var))
+```
+
+```{r cna_downsize, echo=FALSE}
+cna.var <- apply((assays(cna.OV)[[2]]), 1, var)
+cna.data.OV <- subset((assays(cna.OV)[[2]]), cna.var >= quantile(cna.var, 0.99, na.rm=T) & !is.na(cna.var))
+```
+
+## Convert beta to M values
 
 ```{r beta2m, echo=FALSE, message=FALSE}
-meth.data <- beta2m(meth.data)
+meth.data.OV <- beta2m(meth.data.OV)
 ```
 
-Print the clinical data in a datamatrix
+## Remove NA values from Methylation data
+
+```{r remove_NA, echo=FALSE}
+meth.data.OV <- na.omit(meth.data.OV)
+```
+
+
+## Print the clinical data in a datamatrix
 
 ```{r store_clinical, echo=FALSE}
-clin_data <- data.matrix(cna.OV$clinical)
+clin_data.OV <- data.matrix(cna_OV$clinical)
 ```
 
+## Getting a datatable for each kind of data
 
-```{r print_datatables, echo=FALSE, message=FALSE}
+```{r datatable, echo=FALSE}
 DT::datatable(head(rnaseq.OV$dat))
-DT::datatable(head(meth.data))
+DT::datatable(head(meth.OV$dat))
 DT::datatable(head(mut.OV$dat))
-DT::datatable(head(cna.OV$dat))
+DT::datatable(head(assays(cna.OV)[[2]]))
 ```
 
-CNA downloaded that way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).
+CNA downloaded this way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).
 
-```{r filter_tumor_cna}
-is_tumor <- sapply(strsplit(colnames(cna.OV$dat), '-'), function(x) return(grepl('^01', x[4])))
-cna_tumors <- cna.OV$dat[,colnames(cna.OV$dat)[is_tumor]]
+```{r filter_tumor_cna, echo=FALSE}
+is_tumor <- sapply(strsplit(colnames(cna.data.OV), '-'), function(x) return(grepl('^01', x[4])))
+cna_tumors <- cna.data.OV[,colnames(cna.data.OV)[is_tumor]]
 ```
 
-##Get matched tumor and normal samples
+## Get matched tumor and normal samples
 
 ```{r get_matched, echo = FALSE}
 rnaseq.OV.tum.norm <- TumorNormalMatch(rnaseq.OV$dat)
-meth.OV.tum.norm <- TumorNormalMatch(meth.data)
+meth.OV.tum.norm <- TumorNormalMatch(meth.OV$dat)
+
 ```
 
-Print the tumor and normal sample in two separate datatables (dim = gene x sample)
+## Print the tumor and normal sample in two separate datatables (dim = gene x sample)
 
-RNASeq
+## RNASeq
+
 ```{r print_matched_rnaseq, echo=FALSE}
 rnaseq_tum <- (rnaseq.OV.tum.norm$primary)
 rnaseq_norm <- (rnaseq.OV.tum.norm$normal)
 ```
 
-Methylation
+## Methylation
+
 ```{r print_matched_meth, echo=FALSE}
 meth_tum <- (meth.OV.tum.norm$primary)
 meth_norm <- (meth.OV.tum.norm$normal)
 ```
 
+## Trimming the colnames (TCGA barcodes)
+
 ```{r trimming, echo=FALSE, message=FALSE}
-string1 <- colnames(rnaseq.OV$dat)
-colnames(rnaseq.OV$dat) <- substring(string1, 1, 12)
-string2 <- colnames(meth.data)
-colnames(meth.data) <- substring(string2, 1, 12)
-string3 <- colnames(mut.OV$dat)
-colnames(mut.OV$dat) <- substring(string3, 1, 12)
-## string4 <- colnames(cna.COAD$dat)
-## colnames(cna.COAD$dat) <- substring(string4, 1, 12)
+string1 <- colnames(rnaseq.data.OV)
+colnames(rnaseq.data.OV) <- substring(string1, 1, 12)
+string2 <- colnames(meth.data.OV)
+colnames(meth.data.OV) <- substring(string2, 1, 12)
+string3 <- colnames(mut.data.OV)
+colnames(mut.data.OV) <- substring(string3, 1, 12)
+## string4 <- colnames(cna.OV$dat)
+## colnames(cna.OV$dat) <- substring(string4, 1, 12)
 colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
 
 ```
 
-## Data list for MOFA
+## Create two matrices for CNA, one for gains and one for losses
 
-Ensuring duplicate colnames are not present, and taking them out if so
+```{r merge_classes_cna_gains, echo = FALSE}
+cna_tumors_gain <- replace(cna_tumors, cna_tumors < 0, 0)
+cna_tumors_gain <- replace(cna_tumors_gain, cna_tumors_gain > 0, 1)
+```
+
+```{r merge_classes_cna_losses, echo = FALSE}
+cna_tumors_loss <- replace(cna_tumors, cna_tumors > 0, 0)
+cna_tumors_loss <- replace(cna_tumors_loss, cna_tumors_loss < 0, 1)
+```
+
 
 ```{r datamatrices, echo=FALSE}
-rnaseq_data <- rnaseq.OV$dat
-meth_data <- meth.data
-meth_data_final <- na.omit(meth.data)
-mut_data <- mut.OV$dat
-## cna_data <- cna.COAD$dat
-##cna_data <- data.matrix(assays(cna.COAD)[[2]])
+rnaseq_data <- rnaseq.data.OV
+meth_data <- meth.data.OV
+mut_data <- mut.data.OV
+## cna_data <- cna.OV$dat
+##cna_data <- data.matrix(assays(cna.OV)[[2]])
 
 ```
 
-```{r mofalist}
-d <- list(rna = rnaseq_data,
-          meth = meth_data_final,
+## Making a list out of the retrieved data and getting the coldata for MOFA
+
+```{r mofalist, echo = FALSE}
+OV_list <- list(rnaseq = rnaseq_data,
+          meth = meth_data,
           mut = mut_data,
-          cna = cna_tumors)
-sapply(d, function(x) table(duplicated(colnames(x))))
+          cna_gain = cna_tumors_gain,
+          cna_loss = cna_tumors_loss)
+
+#Ensuring duplicate colnames are not present, and taking them out if so
+sapply(OV_list, function(x) table(duplicated(colnames(x))))
 ## these are duplicated
-sapply(d, function(x) colnames(x)[duplicated(colnames(x))])
+sapply(OV_list, function(x) colnames(x)[duplicated(colnames(x))])
 ## not going further on the reasons of the duplications: just getting unique stuff
-for (item in names(d)) {
-    d[[item]] <- d[[item]][,unique(colnames(d[[item]]))]
+for (item in names(OV_list)) {
+    OV_list[[item]] <- OV_list[[item]][,unique(colnames(OV_list[[item]]))]
 }
-sapply(d, function(x) table(duplicated(colnames(x))))
+sapply(OV_list, function(x) table(duplicated(colnames(x))))
 ```
 
-```{r columndata}
-cdata = as.data.frame(clin_data)
-
-
+```{r columndata, echo = FALSE}
+cdata = as.data.frame(clin_data.OV)
 ```
 
-MOFA object (suggestion: better do it from a `MultiAssayExperiment`)
+## Getting the MOFAobject
 
-```{r mofaobject}
-ov_mae <- MultiAssayExperiment(
-  experiments = d, 
+```{r mofaobject, echo = FALSE}
+OV_mae <- MultiAssayExperiment(
+  experiments = OV_list, 
   colData = cdata)
 
-OV_data <- createMOFAobject(ov_mae)
+OV_data <- createMOFAobject(OV_mae)
 
 ```
-
-#```{r save mofaobject}
-save(OV_data,file="/home/ubuntu/REPOS/tcga/Research-Project")
-
-#```
-# Step 2: Fit the MOFA model
-The next step is to fit the model. 
-This part of the pipeline is implemented in Python, so first of all make sure you have the corresponding package installed (see installation instructions and read the FAQ if you have problems).
-
-## Define options
-
-### Define data options
-The most important options the user needs to define are:  
-
-* **scaleViews**: logical indicating whether to scale views to have unit variance. As long as the scale of the different data sets is not too high, this is not required. Default is `FALSE`.  
-
-* **removeIncompleteSamples**: logical indicating whether to remove samples that are not profiled in all omics. The model can cope with missing assays, so this option is not required. Default is `FALSE`.  
-
-#```{r}
-DataOptions <- getDefaultDataOptions()
-DataOptions 
-#```
-
-### Define model options
-Next, we define model options. The most important are:  
-
-* **numFactors**: number of factors (default is 0.5 times the number of samples). By default, the model will only remove a factor if it explains exactly zero variance in the data. You can increase this threshold on minimum variance explained by setting `TrainOptions$dropFactorThreshold` to a value higher than zero.  
-
-* **likelihoods**: likelihood for each view. Usually we recommend gaussian for continuous data, bernoulli for binary data and poisson for count data. By default, the model tries to guess it from the data.  
-
-* **sparsity**: do you want to use sparsity? This makes the interpretation easier so it is recommended (Default is `TRUE`).  
-#```{r}
-ModelOptions <- getDefaultModelOptions(MOFAobject)
-ModelOptions$numFactors <- 25
-ModelOptions
-#```
-
-### Define training options
-Next, we define training options. The most important are:  
-
-* **maxiter**: maximum number of iterations. Ideally set it large enough and use the convergence criterion `TrainOptions$tolerance`.  
-
-* **tolerance**: convergence threshold based on change in the evidence lower bound. For an exploratory run you can use a value between 1.0 and 0.1, but for a "final" model we recommend a value of 0.01.  
-
-* **DropFactorThreshold**: hyperparameter to automatically learn the number of factors based on a minimum variance explained criteria. Factors explaining less than `DropFactorThreshold` fraction of variation in all views will be removed. For example, a value of 0.01 means that factors that explain less than 1\% of variance in all views will be discarded. By default this it zero, meaning that all factors are kept unless they explain no variance at all.  
-
-#```{r}
-TrainOptions <- getDefaultTrainOptions()
-# Automatically drop factors that explain less than 2% of variance in all omics
-TrainOptions$DropFactorThreshold <- 0.02
-TrainOptions$seed <- 2017
-TrainOptions
-#```
-
-## Prepare MOFA
-`prepareMOFA` internally performs a set of sanity checks and fills the `DataOptions`, `TrainOptions` and `ModelOptions` slots of the `MOFAobject`
-#```{r}
-MOFAobject <- prepareMOFA(
-  MOFAobject, 
-  DataOptions = DataOptions,
-  ModelOptions = ModelOptions,
-  TrainOptions = TrainOptions
-)
-#```
-
-Optionally, we can choose to regress out some (technical) covariates before training, using a simple linear model. For example, here we can choose to remove the effect of sex. Ideally, all undesired sources of variation should be removed a priori from the model. The reason ebing that, if strong technical factors exist, the model will "focus" on capturing the variability driven by the technical factors, and small sources of biological variability could be missed.  
-(Note: uncomment and running the function below will lead to a slight modification of the results)
-#```{r}
-# MOFAobject <- regressCovariates(
-#   object = MOFAobject,
-#   views = c("Drugs","Methylation","mRNA"),
-#   covariates = MOFAobject@InputData$Gender
-# )
-#```
-
-## Run MOFA
-Now we are ready to train the `MOFAobject`, which is done with the function `runMOFA`. This step can take some time (around 15 min with default parameters). For illustration we provide an existing trained `MOFAobject`.  
-IMPORTANT NOTE: The software has evolved since the original publication and the results are not 100% reproducible with the last versions. Yet, the output should be very similar (if not improved) to the pre-existent model.
-#```{r, eval=TRUE}
-MOFAobject <- runMOFA(MOFAobject)
-#```
-
-
-
-
-
-
-
-
 
 # Session info
 
@@ -246,3 +199,7 @@ MOFAobject <- runMOFA(MOFAobject)
 date()
 devtools::session_info()
 ```
+
+
+
+

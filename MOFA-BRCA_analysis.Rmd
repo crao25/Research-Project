@@ -120,6 +120,14 @@ plotDataHeatmap(
 )
 ```
 
+```{r}
+plotFactorScatter(
+  MOFAobject,
+  factors = 1:2,
+  color_by = "ASH2L"     # color by the IGHV values that are part of the training data
+)
+```
+
 # Session info
 
 ```{r sessionInfo, cache = TRUE}

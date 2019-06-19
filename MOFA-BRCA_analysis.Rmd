@@ -62,42 +62,17 @@ plotWeightsHeatmap(
 ```
 
 ```{r}
-plotWeightsHeatmap(
+plotWeights(
   MOFAobject, 
-  view = "meth", 
-  factors = 1:10,
-  show_colnames = FALSE
+  view = "cna_gain", 
+  factor = 5, 
+  nfeatures = 5
 )
 ```
 
-```{r}
-plotWeightsHeatmap(
-  MOFAobject, 
-  view = "rnaseq", 
-  factors = 1:10,
-  show_colnames = FALSE
-)
-```
-
-```{r}
-plotWeightsHeatmap(
-  MOFAobject, 
-  view = "mut", 
-  factors = 1:10,
-  show_colnames = FALSE
-)
-```
 
 If you are only interested in looking at only the top features you can use the `plotTopWeights` function.  
 For example, here we plot the mutations with largest loadings on Factor 1. The sign on the right indicates the direction of the loading (positive/negative).
-```{r}
-plotTopWeights(
-  MOFAobject, 
-  view="cna_gain", 
-  factor=1
-)
-```
-
 ```{r}
 plotTopWeights(
   MOFAobject, 
@@ -110,33 +85,10 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="cna_loss", 
-  factor=2
+  factor=5
 )
 ```
 
-```{r}
-plotTopWeights(
-  MOFAobject, 
-  view="cna_loss", 
-  factor=7
-)
-```
-
-```{r}
-plotTopWeights(
-  MOFAobject, 
-  view = "meth", 
-  factor = 3
-)
-```
-
-```{r}
-plotTopWeights(
-  MOFAobject, 
-  view="meth", 
-  factor=4
-)
-```
 
 ```{r}
 plotDataHeatmap(

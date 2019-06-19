@@ -121,9 +121,9 @@ plotDataHeatmap(
 ```
 
 ```{r}
-plotFactorScatter(
+plotFactorBeeswarm(
   MOFAobject,
-  factors = 1:2,
+  factors = 1,
   color_by = "ASH2L"     # color by the IGHV values that are part of the training data
 )
 ```

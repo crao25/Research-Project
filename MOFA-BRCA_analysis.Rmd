@@ -121,10 +121,16 @@ plotDataHeatmap(
 ```
 
 ```{r}
-plotFactorBeeswarm(
-  MOFAobject,
-  factors = 1,
-  color_by = "ASH2L"     # color by the IGHV values that are part of the training data
+set.seed(1234)
+clusters <- clusterSamples(
+  MOFAobject, 
+  k = 2,        # Number of clusters for the k-means function
+  factors = 1   # factors to use for the clustering
+)
+plotFactorScatter(
+  MOFAobject, 
+  factors = 1:2, 
+  color_by = clusters
 )
 ```
 

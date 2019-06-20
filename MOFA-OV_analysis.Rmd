@@ -1,0 +1,102 @@
+---
+title: "MOFA analysis of OV data"
+output: html_document
+author: "Chaitra Rao"
+---
+
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE, cache.lazy = FALSE)
+```
+
+## Necessary Packages
+
+```{r libraries, message = FALSE}
+suppressPackageStartupMessages(library(RTCGAToolbox))
+suppressPackageStartupMessages(library(TCGA2STAT))
+suppressPackageStartupMessages(library(curatedTCGAData))
+suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
+suppressPackageStartupMessages(library(MOFA))
+suppressPackageStartupMessages(library(MultiAssayExperiment))
+```
+
+
+```{r}
+# Loading an existing trained model
+MOFAobject <- loadModel("OV_model.hdf5")
+MOFAobject
+```
+
+```{r}
+# Calculate the variance explained (R2) per factor in each view 
+r2 <- calculateVarianceExplained(MOFAobject)
+r2$R2Total
+# Variance explained by each factor in each view
+head(r2$R2PerFactor)
+# Plot it
+plotVarianceExplained(MOFAobject)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "cna", 
+  factors = 1:5,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "meth", 
+  factors = 1:5,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "mut", 
+  factors = 1:5,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "rna", 
+  factors = 1:5,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="meth", 
+  factor=1
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="meth", 
+  factor=2
+)
+```
+
+
+# Session info
+
+```{r sessionInfo, cache = TRUE}
+date()
+devtools::session_info()
+```
+
+
+

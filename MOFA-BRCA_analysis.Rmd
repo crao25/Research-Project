@@ -19,6 +19,7 @@ suppressPackageStartupMessages(library(DT))
 suppressPackageStartupMessages(library(lumi))
 suppressPackageStartupMessages(library(MOFA))
 suppressPackageStartupMessages(library(MultiAssayExperiment))
+suppressPackageStartupMessages(library(PCGSE))
 ```
 
 

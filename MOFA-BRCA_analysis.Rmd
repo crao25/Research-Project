@@ -19,7 +19,6 @@ suppressPackageStartupMessages(library(DT))
 suppressPackageStartupMessages(library(lumi))
 suppressPackageStartupMessages(library(MOFA))
 suppressPackageStartupMessages(library(MultiAssayExperiment))
-suppressPackageStartupMessages(library(PCGSE))
 ```
 
 
@@ -39,6 +38,10 @@ r2$R2Total
 head(r2$R2PerFactor)
 # Plot it
 plotVarianceExplained(MOFAobject)
+```
+
+```{r}
+fout <- plotFactorCor(MOFAobject)
 ```
 
 ## Part 2: Characterisation of individual factors
@@ -143,17 +146,6 @@ plotFactorScatter(
 ```
 
 
-```{r}
-# Load reactome annotations
-data("reactomeGS") # binary matrix with feature sets in rows and features in columns
-# perform enrichment analysis
-gsea <- runEnrichmentAnalysis(
-  MOFAobject,
-  view = "cna_gain",
-  feature.sets = reactomeGS,
-  alpha = 0.01
-)
-```
 # Session info
 
 ```{r sessionInfo, cache = TRUE}

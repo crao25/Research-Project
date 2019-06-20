@@ -141,6 +141,18 @@ plotFactorScatter(
 )
 ```
 
+
+```{r}
+# Load reactome annotations
+data("reactomeGS") # binary matrix with feature sets in rows and features in columns
+# perform enrichment analysis
+gsea <- runEnrichmentAnalysis(
+  MOFAobject,
+  view = "cna_gain",
+  feature.sets = reactomeGS,
+  alpha = 0.01
+)
+```
 # Session info
 
 ```{r sessionInfo, cache = TRUE}

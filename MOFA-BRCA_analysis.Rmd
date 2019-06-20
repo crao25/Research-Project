@@ -78,9 +78,11 @@ plotWeights(
 If you are only interested in looking at only the top features you can use the `plotTopWeights` function.  
 For example, here we plot the mutations with largest loadings on Factor 1. The sign on the right indicates the direction of the loading (positive/negative).
 ```{r}
-# Mutation weights on factor 1
-showTopWeightsAndColor(MOFAobject, "cna_gain", "5" , nfeatures = 13,
-                       abs=T, maxL = 1, scalePerView=T)
+plotTopWeights(
+  MOFAobject, 
+  view="cna_gain", 
+  factor=5
+)
 ```
 
 ```{r}

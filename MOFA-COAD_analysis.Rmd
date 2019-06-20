@@ -40,6 +40,10 @@ head(r2$R2PerFactor)
 plotVarianceExplained(MOFAobject)
 ```
 
+```{r}
+fout <- plotFactorCor(MOFAobject)
+```
+
 ## Part 2: Characterisation of individual factors
 ### Inspection of top weighted features in the active views
 
@@ -183,8 +187,8 @@ plotWeights(
 plotDataHeatmap(
   MOFAobject, 
   view = "cna_gain", 
-  factor = 1, 
-  features = 20, 
+  factor = 5, 
+  features = 13, 
   show_rownames = FALSE
 )
 ```
@@ -193,8 +197,8 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "cna_loss", 
-  factor = 2, 
-  features = 20, 
+  factor = 1, 
+  features = 13, 
   show_rownames = FALSE
 )
 ```
@@ -204,10 +208,31 @@ plotDataHeatmap(
   MOFAobject, 
   view = "meth", 
   factor = 3, 
-  features = 20, 
+  features = 13, 
   show_rownames = FALSE
 )
 ```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "mut", 
+  factor = 1, 
+  features = 13, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "rnaseq", 
+  factor = 5, 
+  features = 13, 
+  show_rownames = FALSE
+)
+```
+
 
 ```{r}
 plotFactorScatters(

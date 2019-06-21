@@ -51,7 +51,7 @@ fout <- plotFactorCor(MOFAobject)
 plotWeightsHeatmap(
   MOFAobject, 
   view = "cna_gain", 
-  factors = 1:10,
+  factors = 1:18,
   show_colnames = FALSE
 )
 ```
@@ -60,17 +60,35 @@ plotWeightsHeatmap(
 plotWeightsHeatmap(
   MOFAobject, 
   view = "cna_loss", 
-  factors = 1:10,
+  factors = 1:18,
   show_colnames = FALSE
 )
 ```
 
 ```{r}
-plotWeights(
+plotWeightsHeatmap(
   MOFAobject, 
-  view = "cna_gain", 
-  factor = 5, 
-  nfeatures = 15
+  view = "meth", 
+  factors = 1:18,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "mut", 
+  factors = 1:18,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "rnaseq", 
+  factors = 1:18,
+  show_colnames = FALSE
 )
 ```
 
@@ -89,7 +107,78 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="cna_loss", 
+  factor=1
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="meth", 
+  factor=3
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="mut", 
+  factor=4
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="rnaseq", 
   factor=5
+)
+```
+
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "cna_gain", 
+  factor = 5, 
+  nfeatures = 18
+)
+```
+
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "cna_loss", 
+  factor = 1, 
+  nfeatures = 18
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "meth", 
+  factor = 3, 
+  nfeatures = 18
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "mut", 
+  factor = 1, 
+  nfeatures = 18
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "rnaseq", 
+  factor = 5, 
+  nfeatures = 18
 )
 ```
 
@@ -98,8 +187,8 @@ plotTopWeights(
 plotDataHeatmap(
   MOFAobject, 
   view = "cna_gain", 
-  factor = 1, 
-  features = 20, 
+  factor = 5, 
+  features = 18, 
   show_rownames = FALSE
 )
 ```
@@ -108,8 +197,8 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "cna_loss", 
-  factor = 2, 
-  features = 20, 
+  factor = 1, 
+  features = 18, 
   show_rownames = FALSE
 )
 ```
@@ -119,10 +208,31 @@ plotDataHeatmap(
   MOFAobject, 
   view = "meth", 
   factor = 3, 
-  features = 20, 
+  features = 18, 
   show_rownames = FALSE
 )
 ```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "mut", 
+  factor = 1, 
+  features = 18, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "rnaseq", 
+  factor = 5, 
+  features = 18, 
+  show_rownames = FALSE
+)
+```
+
 
 ```{r}
 plotFactorScatters(
@@ -144,7 +254,6 @@ plotFactorScatter(
   color_by = clusters
 )
 ```
-
 
 # Session info
 

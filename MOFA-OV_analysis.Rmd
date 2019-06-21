@@ -267,6 +267,10 @@ pheatmap::pheatmap(drugData4Training[1:40,1:20],
          cluster_rows = FALSE, cluster_cols = FALSE,
          show_rownames = FALSE, show_colnames = FALSE)
 
+pheatmap::pheatmap(predictedCNAgain[1:40,1:20],
+         cluster_rows = FALSE, cluster_cols = FALSE,
+         show_rownames = FALSE, show_colnames = FALSE)
+
 ```
 
 # Session info

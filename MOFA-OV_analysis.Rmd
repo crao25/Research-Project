@@ -255,6 +255,20 @@ plotFactorScatter(
 )
 ```
 
+```{r}
+predictedCNAgain <- predict(
+  MOFAobject,
+  view = "cna_gain",
+  factors = "all"
+)[[1]]
+# training data (incl. missing values)
+drugData4Training <- getTrainData(MOFAobject, view="cna_gain")[[1]]
+pheatmap::pheatmap(drugData4Training[1:40,1:20],
+         cluster_rows = FALSE, cluster_cols = FALSE,
+         show_rownames = FALSE, show_colnames = FALSE)
+
+```
+
 # Session info
 
 ```{r sessionInfo, cache = TRUE}

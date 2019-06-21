@@ -99,7 +99,7 @@ For example, here we plot the mutations with largest loadings on Factor 1. The s
 plotTopWeights(
   MOFAobject, 
   view="cna_gain", 
-  factor=5
+  factor=4
 )
 ```
 
@@ -107,7 +107,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="cna_loss", 
-  factor=1
+  factor=6
 )
 ```
 
@@ -123,7 +123,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="mut", 
-  factor=4
+  factor=1
 )
 ```
 
@@ -131,7 +131,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="rnaseq", 
-  factor=5
+  factor=12
 )
 ```
 
@@ -140,7 +140,7 @@ plotTopWeights(
 plotWeights(
   MOFAobject, 
   view = "cna_gain", 
-  factor = 5, 
+  factor = 4, 
   nfeatures = 18
 )
 ```
@@ -150,7 +150,7 @@ plotWeights(
 plotWeights(
   MOFAobject, 
   view = "cna_loss", 
-  factor = 1, 
+  factor = 6, 
   nfeatures = 18
 )
 ```
@@ -177,7 +177,7 @@ plotWeights(
 plotWeights(
   MOFAobject, 
   view = "rnaseq", 
-  factor = 5, 
+  factor = 12, 
   nfeatures = 18
 )
 ```
@@ -187,7 +187,7 @@ plotWeights(
 plotDataHeatmap(
   MOFAobject, 
   view = "cna_gain", 
-  factor = 5, 
+  factor = 4, 
   features = 18, 
   show_rownames = FALSE
 )
@@ -197,7 +197,7 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "cna_loss", 
-  factor = 1, 
+  factor = 6, 
   features = 18, 
   show_rownames = FALSE
 )
@@ -227,7 +227,7 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "rnaseq", 
-  factor = 5, 
+  factor = 12, 
   features = 18, 
   show_rownames = FALSE
 )

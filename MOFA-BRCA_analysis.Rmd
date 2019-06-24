@@ -106,8 +106,24 @@ plotTopWeights(
 ```{r}
 plotTopWeights(
   MOFAobject, 
+  view="cna_gain", 
+  factor=4
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
   view="cna_loss", 
   factor=2
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna_loss", 
+  factor=1
 )
 ```
 
@@ -145,12 +161,30 @@ plotWeights(
 )
 ```
 
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "cna_gain", 
+  factor = 4, 
+  nfeatures = 18
+)
+```
+
 
 ```{r}
 plotWeights(
   MOFAobject, 
   view = "cna_loss", 
   factor = 2, 
+  nfeatures = 18
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "cna_loss", 
+  factor = 1, 
   nfeatures = 18
 )
 ```
@@ -196,8 +230,28 @@ plotDataHeatmap(
 ```{r}
 plotDataHeatmap(
   MOFAobject, 
+  view = "cna_gain", 
+  factor = 4, 
+  features = 18, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
   view = "cna_loss", 
   factor = 2, 
+  features = 18, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "cna_loss", 
+  factor = 1, 
   features = 18, 
   show_rownames = FALSE
 )

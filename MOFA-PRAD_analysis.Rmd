@@ -107,6 +107,14 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="cna_loss", 
+  factor=1
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna_loss", 
   factor=2
 )
 ```
@@ -131,7 +139,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="rnaseq", 
-  factor=4
+  factor=7
 )
 ```
 
@@ -145,6 +153,15 @@ plotWeights(
 )
 ```
 
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "cna_loss", 
+  factor = 1, 
+  nfeatures = 10
+)
+```
 
 ```{r}
 plotWeights(
@@ -177,7 +194,7 @@ plotWeights(
 plotWeights(
   MOFAobject, 
   view = "rnaseq", 
-  factor = 4, 
+  factor = 7, 
   nfeatures = 10
 )
 ```
@@ -188,6 +205,16 @@ plotDataHeatmap(
   MOFAobject, 
   view = "cna_gain", 
   factor = 4, 
+  features = 10, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "cna_loss", 
+  factor = 1, 
   features = 10, 
   show_rownames = FALSE
 )
@@ -227,7 +254,7 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "rnaseq", 
-  factor = 4, 
+  factor = 7, 
   features = 10, 
   show_rownames = FALSE
 )

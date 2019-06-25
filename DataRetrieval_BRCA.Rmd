@@ -121,6 +121,17 @@ meth_tum <- (meth.BRCA.tum.norm$primary)
 meth_norm <- (meth.BRCA.tum.norm$normal)
 ```
 
+```{r delta_meth}
+delta_meth <- (meth_tum - meth_norm)
+delta_meth <- beta2m(delta_meth)
+delta_meth <- na.omit(delta_meth)
+
+```
+
+```{r save_cpgs_gene_names}
+cpg_gene <- meth.BRCA$cpgs
+```
+
 ## Trimming the colnames (TCGA barcodes)
 
 ```{r trimming, echo=FALSE, message=FALSE}
@@ -153,6 +164,7 @@ cna_tumors_loss <- replace(cna_tumors_loss, cna_tumors_loss < 0, 1)
 rnaseq_data <- rnaseq.data.BRCA
 meth_data <- meth.data.BRCA
 mut_data <- mut.data.BRCA
+meth_delta <- delta_meth
 ## cna_data <- cna.BRCA$dat
 ##cna_data <- data.matrix(assays(cna.BRCA)[[2]])
 
@@ -165,7 +177,8 @@ BRCA_list <- list(rnaseq = rnaseq_data,
           meth = meth_data,
           mut = mut_data,
           cna_gain = cna_tumors_gain,
-          cna_loss = cna_tumors_loss)
+          cna_loss = cna_tumors_loss,
+          methdelta = meth_delta)
 
 #Ensuring duplicate colnames are not present, and taking them out if so
 sapply(BRCA_list, function(x) table(duplicated(colnames(x))))

@@ -324,7 +324,7 @@ survData <- data.frame(Time = as.numeric(survivalData[,3]), Status=as.numeric(su
 SurvObject <-Surv(survData[,1], survData[,2])
 
 fit1 <- survfit(SurvObject ~ cdata$pathologyTstage, data = cdata)
-survplot(fit1)
+plot(fit1)
 ```
 # Session info
 

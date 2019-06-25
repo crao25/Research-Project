@@ -19,6 +19,7 @@ suppressPackageStartupMessages(library(DT))
 suppressPackageStartupMessages(library(lumi))
 suppressPackageStartupMessages(library(MOFA))
 suppressPackageStartupMessages(library(MultiAssayExperiment))
+suppressPackageStartupMessages(library(survival))
 ```
 
 
@@ -308,6 +309,22 @@ plotFactorScatter(
   color_by = clusters
 )
 ```
+
+```{r survival_analysis}
+#Retrieve Survival Data
+survivalData = cdata[,3:5]
+
+#replace missing follow up values with days of death
+survivalData[is.na(survivalData[,3]),3] = survivalData[is.na(survivalData[,3]),2]
+
+#make a data frame for survival data
+survData <- data.frame(Time = as.numeric(survivalData[,3]), Status=as.numeric(survivalData[,1]))
+
+#construct survival Object
+SurvObject <-Surv(survData[,1], survData[,2])
+
+fit1 <- survfit(SurvObject ~ cdata$pathologyTstage, data = cdata)
+survplot(fit1)
 
 # Session info
 

@@ -325,7 +325,7 @@ SurvObject <-Surv(survData[,1], survData[,2])
 
 fit1 <- survfit(SurvObject ~ cdata$pathologyTstage, data = cdata)
 survplot(fit1)
-
+```
 # Session info
 
 ```{r sessionInfo, cache = TRUE}

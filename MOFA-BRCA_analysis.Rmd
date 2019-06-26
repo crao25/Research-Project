@@ -112,7 +112,7 @@ For example, here we plot the mutations with largest loadings on Factor 1. The s
 plotTopWeights(
   MOFAobject, 
   view="cna_gain", 
-  factor=1, sign = "positive"
+  factor=1
 )
 ```
 
@@ -120,7 +120,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="cna_gain", 
-  factor=4, sign = "positive"
+  factor=3
 )
 
 ```
@@ -129,7 +129,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="cna_gain", 
-  factor=8, sign = "positive"
+  factor=7
 )
 
 ```
@@ -139,7 +139,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="cna_loss",
-  factor=2, sign = "positive"
+  factor=2
 )
 ```
 
@@ -147,7 +147,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="cna_loss", 
-  factor=1, sign = "positive"
+  factor=1
 )
 ```
 
@@ -155,7 +155,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="cna_loss", 
-  factor=8, sign = "positive"
+  factor=7
 )
 ```
 
@@ -163,7 +163,23 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="meth", 
-  factor=3, sign = "positive"
+  factor=5
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="methdelta", 
+  factor=4
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="methdelta", 
+  factor=7
 )
 ```
 
@@ -171,7 +187,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="meth", 
-  factor=8, sign = "positive"
+  factor=7
 )
 ```
 
@@ -179,7 +195,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="mut", 
-  factor=8, sign = "positive"
+  factor=7
 )
 ```
 
@@ -187,7 +203,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="rnaseq", 
-  factor=7, sign = "positive"
+  factor=7
 )
 ```
 
@@ -195,7 +211,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="rnaseq", 
-  factor=8, sign = "positive"
+  factor=8
 )
 ```
 
@@ -205,7 +221,7 @@ plotWeights(
   MOFAobject, 
   view = "cna_gain", 
   factor = 1, 
-  nfeatures = 18
+  nfeatures = 5
 )
 ```
 
@@ -213,8 +229,8 @@ plotWeights(
 plotWeights(
   MOFAobject, 
   view = "cna_gain", 
-  factor = 4, 
-  nfeatures = 18
+  factor = 3, 
+  nfeatures = 5
 )
 ```
 
@@ -224,7 +240,7 @@ plotWeights(
   MOFAobject, 
   view = "cna_loss", 
   factor = 2, 
-  nfeatures = 18
+  nfeatures = 5
 )
 ```
 
@@ -233,7 +249,7 @@ plotWeights(
   MOFAobject, 
   view = "cna_loss", 
   factor = 1, 
-  nfeatures = 18
+  nfeatures = 5
 )
 ```
 
@@ -241,8 +257,17 @@ plotWeights(
 plotWeights(
   MOFAobject, 
   view = "meth", 
-  factor = 3, 
-  nfeatures = 18
+  factor = 5, 
+  nfeatures = 5
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "methdelta", 
+  factor = 7, 
+  nfeatures = 5
 )
 ```
 
@@ -250,8 +275,8 @@ plotWeights(
 plotWeights(
   MOFAobject, 
   view = "mut", 
-  factor = 8, 
-  nfeatures = 18
+  factor = 7, 
+  nfeatures = 5
 )
 ```
 
@@ -259,8 +284,8 @@ plotWeights(
 plotWeights(
   MOFAobject, 
   view = "rnaseq", 
-  factor = 7, 
-  nfeatures = 18
+  factor = 8, 
+  nfeatures = 5
 )
 ```
 
@@ -279,7 +304,7 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "cna_gain", 
-  factor = 4, 
+  factor = 3, 
   features = 18, 
   show_rownames = FALSE
 )
@@ -309,7 +334,17 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "meth", 
-  factor = 3, 
+  factor = 5, 
+  features = 18, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "methdelta", 
+  factor = 4, 
   features = 18, 
   show_rownames = FALSE
 )
@@ -319,7 +354,7 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "mut", 
-  factor = 8, 
+  factor = 7, 
   features = 18, 
   show_rownames = FALSE
 )
@@ -329,7 +364,7 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "rnaseq", 
-  factor = 7, 
+  factor = 8, 
   features = 18, 
   show_rownames = FALSE
 )

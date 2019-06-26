@@ -1,0 +1,262 @@
+---
+title: "Application of MOFA on BRCA data"
+output: html_document
+author: "Chaitra Rao"
+---
+
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE, cache.lazy = FALSE)
+```
+
+## Necessary Packages
+
+```{r libraries, message = FALSE}
+suppressPackageStartupMessages(library(RTCGAToolbox))
+suppressPackageStartupMessages(library(TCGA2STAT))
+suppressPackageStartupMessages(library(curatedTCGAData))
+suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
+suppressPackageStartupMessages(library(MOFA))
+suppressPackageStartupMessages(library(MultiAssayExperiment))
+suppressPackageStartupMessages(library(survival))
+```
+
+
+
+```{r}
+# Loading an existing trained model
+MOFAobject <- loadModel("BRCA_model.hdf5")
+MOFAobject
+```
+
+## Part 1: Disentangling the heterogeneity: calculation of variance explained by each factor in each view
+
+```{r}
+# Calculate the variance explained (R2) per factor in each view 
+r2 <- calculateVarianceExplained(MOFAobject)
+r2$R2Total
+# Variance explained by each factor in each view
+head(r2$R2PerFactor)
+# Plot it
+plotVarianceExplained(MOFAobject)
+```
+
+```{r}
+fout <- plotFactorCor(MOFAobject)
+```
+
+## Part 2: Characterisation of individual factors
+### Inspection of top weighted features in the active views
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "cna", 
+  factors = 1:19,
+  show_colnames = FALSE
+)
+```
+
+
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "meth", 
+  factors = 1:19,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "mut", 
+  factors = 1:19,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "rnaseq", 
+  factors = 1:19,
+  show_colnames = FALSE
+)
+```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "methdelta", 
+  factors = 1:19,
+  show_colnames = FALSE
+)
+```
+
+
+
+
+If you are only interested in looking at only the top features you can use the `plotTopWeights` function.  
+For example, here we plot the mutations with largest loadings on Factor 1. The sign on the right indicates the direction of the loading (positive/negative).
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna", 
+  factor=1, sign = "positive"
+)
+```
+
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="meth", 
+  factor=3, sign = "positive"
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="meth", 
+  factor=8, sign = "positive"
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="mut", 
+  factor=8, sign = "positive"
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="rnaseq", 
+  factor=7, sign = "positive"
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="rnaseq", 
+  factor=8, sign = "positive"
+)
+```
+
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "cna", 
+  factor = 1, 
+  nfeatures = 18
+)
+```
+
+
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "meth", 
+  factor = 3, 
+  nfeatures = 18
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "mut", 
+  factor = 8, 
+  nfeatures = 18
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "rnaseq", 
+  factor = 7, 
+  nfeatures = 18
+)
+```
+
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "cna", 
+  factor = 1, 
+  features = 18, 
+  show_rownames = FALSE
+)
+```
+
+
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "meth", 
+  factor = 3, 
+  features = 18, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "mut", 
+  factor = 8, 
+  features = 18, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "rnaseq", 
+  factor = 7, 
+  features = 18, 
+  show_rownames = FALSE
+)
+```
+
+
+```{r}
+plotFactorScatters(
+  MOFAobject,
+  factors = 1:3
+)
+```
+
+```{r}
+set.seed(1234)
+clusters <- clusterSamples(
+  MOFAobject, 
+  k = 2,        # Number of clusters for the k-means function
+  factors = 1   # factors to use for the clustering
+)
+plotFactorScatter(
+  MOFAobject, 
+  factors = 1:2, 
+  color_by = clusters
+)
+```
+
+# Session info
+
+```{r sessionInfo, cache = TRUE}
+date()
+devtools::session_info()
+```

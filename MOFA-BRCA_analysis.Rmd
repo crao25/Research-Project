@@ -53,7 +53,7 @@ fout <- plotFactorCor(MOFAobject)
 plotWeightsHeatmap(
   MOFAobject, 
   view = "cna_gain", 
-  factors = 1:18,
+  factors = 1:19,
   show_colnames = FALSE
 )
 ```
@@ -62,7 +62,7 @@ plotWeightsHeatmap(
 plotWeightsHeatmap(
   MOFAobject, 
   view = "cna_loss", 
-  factors = 1:18,
+  factors = 1:19,
   show_colnames = FALSE
 )
 ```
@@ -71,7 +71,7 @@ plotWeightsHeatmap(
 plotWeightsHeatmap(
   MOFAobject, 
   view = "meth", 
-  factors = 1:18,
+  factors = 1:19,
   show_colnames = FALSE
 )
 ```
@@ -80,7 +80,7 @@ plotWeightsHeatmap(
 plotWeightsHeatmap(
   MOFAobject, 
   view = "mut", 
-  factors = 1:18,
+  factors = 1:19,
   show_colnames = FALSE
 )
 ```
@@ -89,10 +89,21 @@ plotWeightsHeatmap(
 plotWeightsHeatmap(
   MOFAobject, 
   view = "rnaseq", 
-  factors = 1:18,
+  factors = 1:19,
   show_colnames = FALSE
 )
 ```
+
+```{r}
+plotWeightsHeatmap(
+  MOFAobject, 
+  view = "methdelta", 
+  factors = 1:19,
+  show_colnames = FALSE
+)
+```
+
+
 
 
 If you are only interested in looking at only the top features you can use the `plotTopWeights` function.  

@@ -60,8 +60,8 @@ Next, we define training options. The most important are:
 
 ```{r}
 TrainOptions <- getDefaultTrainOptions()
-# Automatically drop factors that explain less than 2% of variance in all omics
-TrainOptions$DropFactorThreshold <- 0.01
+# Automatically drop factors that explain less than 5% of variance in all omics
+TrainOptions$DropFactorThreshold <- 0.05
 TrainOptions$seed <- 2017
 TrainOptions
 ```

@@ -230,7 +230,7 @@ suppressPackageStartupMessages(library(MultiAssayExperiment))</code></pre>
 <pre><code>## 20501 genes have been imported!</code></pre>
 <pre class="r"><code>meth.BRCA &lt;- getTCGA(disease = &quot;BRCA&quot;, data.type = &quot;Methylation&quot;, type = &quot;450K&quot;)</code></pre>
 <pre><code>## Methylation data will be imported! This may take some time!</code></pre>
-<pre><code>## 305000 CPG probes have been imported!</code></pre>
+<pre><code>## 115000 CPG probes have been imported!</code></pre>
 <pre class="r"><code>mut.BRCA &lt;- getTCGA(disease = &quot;BRCA&quot;, data.type = &quot;Mutation&quot;, type = &quot;somatic&quot;)</code></pre>
 <pre><code>## Mutation data will be imported! This may take some time!</code></pre>
 <pre class="r"><code>#cna.BRCA &lt;- curatedTCGAData(diseaseCode = &quot;BRCA&quot;,
@@ -252,11 +252,11 @@ cna.data.BRCA &lt;- subset(cna.BRCA$dat, cna.var &gt;= quantile(cna.var, 0.99, n
 </div>
 <div id="take-delta-values-for-methylation-and-rnaseq-tumor---normal" class="section level3">
 <h3>Take delta values for methylation and RNAseq (tumor - normal)</h3>
-<pre class="r"><code>meth.BRCA.tum.norm &lt;- TumorNormalMatch(meth.BRCA$dat)
+<pre class="r"><code>meth.BRCA.tum.norm &lt;- TumorNormalMatch(meth.data.BRCA)
 meth_tum &lt;- (meth.BRCA.tum.norm$primary)
 meth_norm &lt;- (meth.BRCA.tum.norm$normal)
 delta_meth &lt;- (meth_tum - meth_norm)</code></pre>
-<pre class="r"><code>rnaseq.BRCA.tum.norm &lt;- TumorNormalMatch(rnaseq.BRCA$dat)
+<pre class="r"><code>rnaseq.BRCA.tum.norm &lt;- TumorNormalMatch(rnaseq.data.BRCA)
 rnaseq_tum &lt;- (rnaseq.BRCA.tum.norm$primary)
 rnaseq_norm &lt;- (rnaseq.BRCA.tum.norm$normal)
 delta_rnaseq &lt;- (rnaseq_tum - rnaseq_norm)</code></pre>
@@ -351,7 +351,7 @@ sapply(BRCA_list, function(x) table(duplicated(colnames(x))))</code></pre>
 <div id="session-info" class="section level1">
 <h1>Session info</h1>
 <pre class="r"><code>date()</code></pre>
-<pre><code>## [1] &quot;Thu Jun 27 12:42:50 2019&quot;</code></pre>
+<pre><code>## [1] &quot;Thu Jun 27 13:32:03 2019&quot;</code></pre>
 <pre class="r"><code>devtools::session_info()</code></pre>
 <pre><code>## ─ Session info ──────────────────────────────────────────────────────────
 ##  setting  value                       

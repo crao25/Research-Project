@@ -53,18 +53,7 @@ fout <- plotFactorCor(MOFAobject)
 plotWeightsHeatmap(
   MOFAobject, 
   view = "cna", 
-  factors = 1:19,
-  show_colnames = FALSE
-)
-```
-
-
-
-```{r}
-plotWeightsHeatmap(
-  MOFAobject, 
-  view = "meth", 
-  factors = 1:19,
+  factors = 1:6,
   show_colnames = FALSE
 )
 ```
@@ -73,7 +62,7 @@ plotWeightsHeatmap(
 plotWeightsHeatmap(
   MOFAobject, 
   view = "mut", 
-  factors = 1:19,
+  factors = 1:6,
   show_colnames = FALSE
 )
 ```
@@ -82,7 +71,7 @@ plotWeightsHeatmap(
 plotWeightsHeatmap(
   MOFAobject, 
   view = "rnaseq", 
-  factors = 1:19,
+  factors = 1:6,
   show_colnames = FALSE
 )
 ```
@@ -90,8 +79,8 @@ plotWeightsHeatmap(
 ```{r}
 plotWeightsHeatmap(
   MOFAobject, 
-  view = "methdelta", 
-  factors = 1:19,
+  view = "meth", 
+  factors = 1:6,
   show_colnames = FALSE
 )
 ```

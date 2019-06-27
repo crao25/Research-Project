@@ -69,14 +69,14 @@ cna.data.BRCA <- subset(cna.BRCA$dat, cna.var >= quantile(cna.var, 0.99, na.rm=T
 ### Take delta values for methylation and RNAseq (tumor - normal)
 
 ```{r delta_meth}
-meth.BRCA.tum.norm <- TumorNormalMatch(meth.BRCA$dat)
+meth.BRCA.tum.norm <- TumorNormalMatch(meth.data.BRCA)
 meth_tum <- (meth.BRCA.tum.norm$primary)
 meth_norm <- (meth.BRCA.tum.norm$normal)
 delta_meth <- (meth_tum - meth_norm)
 ```
 
 ```{r delta_rnaseq}
-rnaseq.BRCA.tum.norm <- TumorNormalMatch(rnaseq.BRCA$dat)
+rnaseq.BRCA.tum.norm <- TumorNormalMatch(rnaseq.data.BRCA)
 rnaseq_tum <- (rnaseq.BRCA.tum.norm$primary)
 rnaseq_norm <- (rnaseq.BRCA.tum.norm$normal)
 delta_rnaseq <- (rnaseq_tum - rnaseq_norm)

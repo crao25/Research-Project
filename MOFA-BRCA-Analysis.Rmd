@@ -22,7 +22,10 @@ suppressPackageStartupMessages(library(MultiAssayExperiment))
 suppressPackageStartupMessages(library(survival))
 ```
 
-
+Saving the genomic information of all the CpG sites.
+```{r}
+genomic_info <- meth.BRCA$cpgs
+```
 
 ```{r}
 # Loading an existing trained model
@@ -86,8 +89,6 @@ plotWeightsHeatmap(
 ```
 
 
-
-
 If you are only interested in looking at only the top features you can use the `plotTopWeights` function.  
 For example, here we plot the mutations with largest loadings on Factor 1. The sign on the right indicates the direction of the loading (positive/negative).
 ```{r}
@@ -105,6 +106,15 @@ plotTopWeights(
   view="meth", 
   factor=4
 )
+```
+
+Extracting the genomic information for the important CpGs based on the above plot
+
+```{r}
+a <- genomic_info["cg05422029",]
+b <- genomic_info["cg02067712",]
+c <- genomic_info["cg01016662",]
+rbind(a,b,c)
 ```
 
 

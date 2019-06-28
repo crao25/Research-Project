@@ -44,26 +44,26 @@ cna.BRCA <- getTCGA(disease="BRCA", data.type="CNA_SNP", clinical = TRUE)
 
 ```
 
-### Downsize all the data to top 10% variance
+### Downsize all the data to top 1% variance
 
 ```{r meth_downsize}
-meth.var <- apply(meth.BRCA$dat, 1, var)
-meth.data.BRCA <- subset(meth.BRCA$dat, meth.var >= quantile(meth.var, 0.99, na.rm=T) & !is.na(meth.var))
+meth.var <- apply(meth.BRCA$dat, 1, function(x) var(x, na.rm=TRUE))
+meth.data.BRCA <- subset(meth.BRCA$dat, meth.var >= quantile(meth.var, 0.90, na.rm = TRUE))
 ```
 
 ```{r rnaseq_downsize}
-rnaseq.var <- apply(rnaseq.BRCA$dat, 1, var)
-rnaseq.data.BRCA <- subset(rnaseq.BRCA$dat, rnaseq.var >= quantile(rnaseq.var, 0.99, na.rm=T) & !is.na(rnaseq.var))
+rnaseq.var <- apply(rnaseq.BRCA$dat, 1, function(x) var(x, na.rm=TRUE))
+rnaseq.data.BRCA <- subset(rnaseq.BRCA$dat, rnaseq.var >= quantile(rnaseq.var, 0.90, na.rm=TRUE))
 ```
 
 ```{r mut_downsize}
-mut.var <- apply(mut.BRCA$dat, 1, var)
-mut.data.BRCA <- subset(mut.BRCA$dat, mut.var >= quantile(mut.var, 0.99, na.rm=T) & !is.na(mut.var))
+mut.var <- apply(mut.BRCA$dat, 1, function(x) var(x, na.rm=TRUE))
+mut.data.BRCA <- subset(mut.BRCA$dat, mut.var >= quantile(mut.var, 0.90, na.rm=TRUE))
 ```
 
 ```{r cna_downsize}
-cna.var <- apply(cna.BRCA$dat, 1, var)
-cna.data.BRCA <- subset(cna.BRCA$dat, cna.var >= quantile(cna.var, 0.99, na.rm=T) & !is.na(cna.var))
+cna.var <- apply(cna.BRCA$dat, 1, function(x) var(x, na.rm=TRUE))
+cna.data.BRCA <- subset(cna.BRCA$dat, cna.var >= quantile(cna.var, 0.90, na.rm=TRUE))
 ```
 
 ### Take delta values for methylation and RNAseq (tumor - normal)

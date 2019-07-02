@@ -205,6 +205,113 @@ suppressPackageStartupMessages(library(DT))
 suppressPackageStartupMessages(library(lumi))
 suppressPackageStartupMessages(library(MOFA))
 suppressPackageStartupMessages(library(MultiAssayExperiment))</code></pre>
+<div id="downsize-all-the-data-to-top-1-variance" class="section level3">
+<h3>Downsize all the data to top 1% variance</h3>
+<pre class="r"><code>meth.var &lt;- apply(meth.BRCA$dat, 1, function(x) var(x, na.rm=TRUE))
+meth.data.BRCA &lt;- subset(meth.BRCA$dat, meth.var &gt;= quantile(meth.var, 0.90, na.rm = TRUE))</code></pre>
+<pre class="r"><code>rnaseq.var &lt;- apply(rnaseq.BRCA$dat, 1, var)
+rnaseq.data.BRCA &lt;- subset(rnaseq.BRCA$dat, rnaseq.var &gt;= quantile(rnaseq.var, 0.99, na.rm=T) &amp; !is.na(rnaseq.var))</code></pre>
+<pre class="r"><code>mut.var &lt;- apply(mut.BRCA$dat, 1, var)
+mut.data.BRCA &lt;- subset(mut.BRCA$dat, mut.var &gt;= quantile(mut.var, 0.99, na.rm=T) &amp; !is.na(mut.var))</code></pre>
+<pre class="r"><code>cna.var &lt;- apply(cna.BRCA$dat, 1, var)
+cna.data.BRCA &lt;- subset(cna.BRCA$dat, cna.var &gt;= quantile(cna.var, 0.99, na.rm=T) &amp; !is.na(cna.var))</code></pre>
+</div>
+<div id="take-delta-values-for-methylation-and-rnaseq-tumor---normal" class="section level3">
+<h3>Take delta values for methylation and RNAseq (tumor - normal)</h3>
+<pre class="r"><code>meth.BRCA.tum.norm &lt;- TumorNormalMatch(meth.data.BRCA)
+meth_tum &lt;- (meth.BRCA.tum.norm$primary)
+meth_norm &lt;- (meth.BRCA.tum.norm$normal)
+delta_meth &lt;- (meth_tum - meth_norm)</code></pre>
+<pre class="r"><code>rnaseq.BRCA.tum.norm &lt;- TumorNormalMatch(rnaseq.data.BRCA)
+rnaseq_tum &lt;- (rnaseq.BRCA.tum.norm$primary)
+rnaseq_norm &lt;- (rnaseq.BRCA.tum.norm$normal)
+delta_rnaseq &lt;- (rnaseq_tum - rnaseq_norm)</code></pre>
+</div>
+<div id="convert-beta-to-m-values" class="section level3">
+<h3>Convert beta to M values</h3>
+<pre class="r"><code>delta_meth &lt;- beta2m(delta_meth)</code></pre>
+<pre><code>## Warning in beta2m(delta_meth): NaNs produced</code></pre>
+</div>
+<div id="rembrcae-na-values-from-methylation-data" class="section level3">
+<h3>RemBRCAe NA values from Methylation data</h3>
+<pre class="r"><code>delta_meth &lt;- na.omit(delta_meth)</code></pre>
+</div>
+<div id="clinical-data" class="section level3">
+<h3>Clinical data</h3>
+<pre class="r"><code>clin_data.BRCA &lt;- data.matrix(cna.BRCA$clinical)</code></pre>
+</div>
+<div id="filtering-tumor-cna" class="section level3">
+<h3>Filtering tumor CNA</h3>
+<p>CNA downloaded this way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with <code>01</code> as fourth element at the barcode).</p>
+<pre class="r"><code>is_tumor &lt;- sapply(strsplit(colnames(cna.data.BRCA), '-'), function(x) return(grepl('^01', x[4])))
+cna_tumors &lt;- cna.data.BRCA[,colnames(cna.data.BRCA)[is_tumor]]</code></pre>
+</div>
+<div id="trimming-the-colnames-tcga-barcodes" class="section level3">
+<h3>Trimming the colnames (TCGA barcodes)</h3>
+<pre class="r"><code>string1 &lt;- colnames(delta_rnaseq)
+colnames(delta_rnaseq) &lt;- substring(string1, 1, 12)
+string2 &lt;- colnames(delta_meth)
+colnames(delta_meth) &lt;- substring(string2, 1, 12)
+string3 &lt;- colnames(mut.data.BRCA)
+colnames(mut.data.BRCA) &lt;- substring(string3, 1, 12)
+## string4 &lt;- colnames(cna.BRCA$dat)
+## colnames(cna.BRCA$dat) &lt;- substring(string4, 1, 12)
+colnames(cna_tumors) &lt;-  substring(colnames(cna_tumors), 1, 12)</code></pre>
+<pre class="r"><code>rnaseq_data &lt;- delta_rnaseq
+meth_data &lt;- delta_meth
+mut_data &lt;- mut.data.BRCA
+cna_data &lt;- cna_tumors</code></pre>
+</div>
+<div id="making-a-list-out-of-the-retrieved-data-and-getting-the-coldata-for-mofa" class="section level3">
+<h3>Making a list out of the retrieved data and getting the coldata for MOFA</h3>
+<pre class="r"><code>BRCA_list &lt;- list(rnaseq = rnaseq_data,
+          meth = meth_data,
+          mut = mut_data,
+          cna = cna_data)
+
+#Ensuring duplicate colnames are not present, and taking them out if so
+sapply(BRCA_list, function(x) table(duplicated(colnames(x))))</code></pre>
+<pre><code>## rnaseq.FALSE   meth.FALSE    mut.FALSE    cna.FALSE 
+##          112           90          977         1089</code></pre>
+<pre class="r"><code>## these are duplicated
+sapply(BRCA_list, function(x) colnames(x)[duplicated(colnames(x))])</code></pre>
+<pre><code>## $rnaseq
+## character(0)
+## 
+## $meth
+## character(0)
+## 
+## $mut
+## character(0)
+## 
+## $cna
+## character(0)</code></pre>
+<pre class="r"><code>## not going further on the reasons of the duplications: just getting unique stuff
+for (item in names(BRCA_list)) {
+    BRCA_list[[item]] &lt;- BRCA_list[[item]][,unique(colnames(BRCA_list[[item]]))]
+}
+sapply(BRCA_list, function(x) table(duplicated(colnames(x))))</code></pre>
+<pre><code>## rnaseq.FALSE   meth.FALSE    mut.FALSE    cna.FALSE 
+##          112           90          977         1089</code></pre>
+<pre class="r"><code>cdata = as.data.frame(clin_data.BRCA)</code></pre>
+</div>
+</div>
+<div id="getting-the-mofaobject" class="section level2">
+<h2>Getting the MOFAobject</h2>
+<pre class="r"><code>BRCA_mae &lt;- MultiAssayExperiment(
+  experiments = BRCA_list, 
+  colData = cdata)</code></pre>
+<pre><code>## ExperimentList contains data.frame or DataFrame,
+##   potential for errors with mixed data types</code></pre>
+<pre><code>## Warning in .sampleMapFromData(colData, experiments): Data from rows:
+##  NA - TCGA-BH-A0B2
+## dropped due to missing phenotype data</code></pre>
+<pre><code>## ExperimentList contains data.frame or DataFrame,
+##   potential for errors with mixed data types</code></pre>
+<pre><code>## harmonizing input:
+##   removing 3 colData rownames not in sampleMap 'primary'</code></pre>
+<pre class="r"><code>BRCA_data &lt;- createMOFAobject(BRCA_mae)</code></pre>
+<pre><code>## Creating MOFA object from a MultiAssayExperiment object...</code></pre>
 </div>
 <div id="define-options" class="section level2">
 <h2>Define options</h2>

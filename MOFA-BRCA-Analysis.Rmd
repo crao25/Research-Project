@@ -104,7 +104,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="meth", 
-  factor=3
+  factor=4
 )
 ```
 
@@ -151,7 +151,7 @@ plotWeights(
 plotWeights(
   MOFAobject, 
   view = "meth", 
-  factor = 3, 
+  factor = 4, 
   nfeatures = 5
 )
 ```
@@ -191,7 +191,7 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "meth", 
-  factor = 3, 
+  factor = 4, 
   features = 5, 
   show_rownames = FALSE
 )

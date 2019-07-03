@@ -21,6 +21,130 @@ suppressPackageStartupMessages(library(MOFA))
 suppressPackageStartupMessages(library(MultiAssayExperiment))
 ```
 
+### Downsize all the data to top 1% variance
+
+```{r meth_downsize}
+meth.var <- apply(meth.PRAD$dat, 1, function(x) var(x, na.rm=TRUE))
+meth.data.PRAD <- subset(meth.PRAD$dat, meth.var >= quantile(meth.var, 0.90, na.rm = TRUE))
+```
+
+```{r rnaseq_downsize}
+rnaseq.var <- apply(rnaseq.PRAD$dat, 1, var)
+rnaseq.data.PRAD <- subset(rnaseq.PRAD$dat, rnaseq.var >= quantile(rnaseq.var, 0.99, na.rm=T) & !is.na(rnaseq.var))
+```
+
+```{r mut_downsize}
+mut.var <- apply(mut.PRAD$dat, 1, var)
+mut.data.PRAD <- subset(mut.PRAD$dat, mut.var >= quantile(mut.var, 0.99, na.rm=T) & !is.na(mut.var))
+```
+
+```{r cna_downsize}
+cna.var <- apply(cna_PRAD$dat, 1, var)
+cna.data.PRAD <- subset(cna_PRAD$dat, cna.var >= quantile(cna.var, 0.99, na.rm=T) & !is.na(cna.var))
+```
+
+### Take delta values for methylation and RNAseq (tumor - normal)
+
+```{r delta_meth}
+meth.PRAD.tum.norm <- TumorNormalMatch(meth.data.PRAD)
+meth_tum <- (meth.PRAD.tum.norm$primary)
+meth_norm <- (meth.PRAD.tum.norm$normal)
+delta_meth <- (meth_tum - meth_norm)
+```
+
+```{r delta_rnaseq}
+rnaseq.PRAD.tum.norm <- TumorNormalMatch(rnaseq.data.PRAD)
+rnaseq_tum <- (rnaseq.PRAD.tum.norm$primary)
+rnaseq_norm <- (rnaseq.PRAD.tum.norm$normal)
+delta_rnaseq <- (rnaseq_tum - rnaseq_norm)
+```
+
+### Convert beta to M values
+
+```{r beta2m}
+delta_meth <- beta2m(delta_meth)
+```
+
+### RemPRADe NA values from Methylation data
+
+```{r remPRADe_NA}
+delta_meth <- na.omit(delta_meth)
+```
+
+
+### Clinical data
+
+```{r store_clinical}
+clin_data.PRAD <- data.matrix(cna_PRAD$clinical)
+```
+
+### Filtering tumor CNA
+
+CNA downloaded this way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).
+
+```{r filter_tumor_cna}
+is_tumor <- sapply(strsplit(colnames(cna.data.PRAD), '-'), function(x) return(grepl('^01', x[4])))
+cna_tumors <- cna.data.PRAD[,colnames(cna.data.PRAD)[is_tumor]]
+```
+
+### Trimming the colnames (TCGA barcodes)
+
+```{r trimming}
+string1 <- colnames(delta_rnaseq)
+colnames(delta_rnaseq) <- substring(string1, 1, 12)
+string2 <- colnames(delta_meth)
+colnames(delta_meth) <- substring(string2, 1, 12)
+string3 <- colnames(mut.data.PRAD)
+colnames(mut.data.PRAD) <- substring(string3, 1, 12)
+## string4 <- colnames(cna.PRAD$dat)
+## colnames(cna.PRAD$dat) <- substring(string4, 1, 12)
+colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
+
+```
+
+
+```{r datamatrices}
+rnaseq_data <- delta_rnaseq
+meth_data <- delta_meth
+mut_data <- mut.data.PRAD
+cna_data <- cna_tumors
+
+```
+
+
+### Making a list out of the retrieved data and getting the coldata for MOFA
+
+```{r mofalist}
+PRAD_list <- list(rnaseq = rnaseq_data,
+          meth = meth_data,
+          mut = mut_data,
+          cna = cna_data)
+
+#Ensuring duplicate colnames are not present, and taking them out if so
+sapply(PRAD_list, function(x) table(duplicated(colnames(x))))
+## these are duplicated
+sapply(PRAD_list, function(x) colnames(x)[duplicated(colnames(x))])
+## not going further on the reasons of the duplications: just getting unique stuff
+for (item in names(PRAD_list)) {
+    PRAD_list[[item]] <- PRAD_list[[item]][,unique(colnames(PRAD_list[[item]]))]
+}
+sapply(PRAD_list, function(x) table(duplicated(colnames(x))))
+```
+
+```{r columndata}
+cdata = as.data.frame(clin_data.PRAD)
+```
+
+## Getting the MOFAobject
+
+```{r mofaobject}
+PRAD_mae <- MultiAssayExperiment(
+  experiments = PRAD_list, 
+  colData = cdata)
+
+PRAD_data <- createMOFAobject(PRAD_mae)
+```
+
 ## Define options
 
 ### Define data options
@@ -60,8 +184,8 @@ Next, we define training options. The most important are:
 
 ```{r}
 TrainOptions <- getDefaultTrainOptions()
-# Automatically drop factors that explain less than 2% of variance in all omics
-TrainOptions$DropFactorThreshold <- 0.01
+# Automatically drop factors that explain less than 5% of variance in all omics
+TrainOptions$DropFactorThreshold <- 0.05
 TrainOptions$seed <- 2017
 TrainOptions
 ```

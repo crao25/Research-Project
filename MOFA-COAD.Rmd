@@ -21,7 +21,7 @@ suppressPackageStartupMessages(library(MOFA))
 suppressPackageStartupMessages(library(MultiAssayExperiment))
 ```
 
-### Downsize all the data to top 1% variance
+### Downsize all the data to 90% quantile
 
 ```{r meth_downsize}
 meth.var <- apply(meth.COAD$dat, 1, function(x) var(x, na.rm=TRUE))
@@ -29,18 +29,18 @@ meth.data.COAD <- subset(meth.COAD$dat, meth.var >= quantile(meth.var, 0.90, na.
 ```
 
 ```{r rnaseq_downsize}
-rnaseq.var <- apply(rnaseq.COAD$dat, 1, var)
-rnaseq.data.COAD <- subset(rnaseq.COAD$dat, rnaseq.var >= quantile(rnaseq.var, 0.99, na.rm=T) & !is.na(rnaseq.var))
+rnaseq.var <- apply(rnaseq.COAD$dat, 1, function(x) var(x, na.rm=TRUE))
+rnaseq.data.COAD <- subset(rnaseq.COAD$dat, rnaseq.var >= quantile(rnaseq.var, 0.90, na.rm=TRUE))
 ```
 
 ```{r mut_downsize}
-mut.var <- apply(mut.COAD$dat, 1, var)
-mut.data.COAD <- subset(mut.COAD$dat, mut.var >= quantile(mut.var, 0.99, na.rm=T) & !is.na(mut.var))
+mut.var <- apply(mut.COAD$dat, 1, function(x) var(x, na.rm=TRUE))
+mut.data.COAD <- subset(mut.COAD$dat, mut.var >= quantile(mut.var, 0.90, na.rm=TRUE))
 ```
 
 ```{r cna_downsize}
-cna.var <- apply(cna_COAD$dat, 1, var)
-cna.data.COAD <- subset(cna_COAD$dat, cna.var >= quantile(cna.var, 0.99, na.rm=T) & !is.na(cna.var))
+cna.var <- apply(cna.COAD$dat, 1, function(x) var(x, na.rm=TRUE))
+cna.data.COAD <- subset(cna.COAD$dat, cna.var >= quantile(cna.var, 0.90, na.rm=TRUE))
 ```
 
 ### Take delta values for methylation and RNAseq (tumor - normal)
@@ -65,17 +65,16 @@ delta_rnaseq <- (rnaseq_tum - rnaseq_norm)
 delta_meth <- beta2m(delta_meth)
 ```
 
-### RemCOADe NA values from Methylation data
+### Remove NA values from Methylation data
 
-```{r remCOADe_NA}
+```{r remove_NA}
 delta_meth <- na.omit(delta_meth)
 ```
-
 
 ### Clinical data
 
 ```{r store_clinical}
-clin_data.COAD <- data.matrix(cna_COAD$clinical)
+clin_data.COAD <- data.matrix(cna.COAD$clinical)
 ```
 
 ### Filtering tumor CNA

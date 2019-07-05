@@ -53,9 +53,9 @@ fout <- plotFactorCor(MOFAobject)
 
 ## Part 2: Characterisation of individual factors
 ### Inspection of top weighted features in the active views
-Inspection of top features with highest loadings: loading is a measure of feature importance, features with high loadings are the ones driving the heterogeneity captured by the factor. They provide the mapping between the high-dimensional space (the genes) and the low-dimensional space (the factors). They define a score for each gene on each factor, such that genes with no association with the factor are expected to have values close to zero, whereas genes with strong association with the factor are expected to have large absolute values.
+Inspection of top features with highest loadings: One of the first steps for the annotation of a given factor is to visualize the corresponding loadings. Loading is a measure of feature importance, features with high loadings are the ones driving the heterogeneity captured by the factor. They provide the mapping between the high-dimensional space (the genes) and the low-dimensional space (the factors). They define a score for each gene on each factor, such that genes with no association with the factor are expected to have values close to zero, whereas genes with strong association with the factor are expected to have large absolute values.
 
-#### Weight heat maps: They give an overview of the weights across all factors in a given view. 
+#### Weight Heatmaps: They give an overview of the weights across all factors in a given view. 
 ```{r}
 plotWeightsHeatmap(
   MOFAobject, 
@@ -157,8 +157,7 @@ plotWeights(
 )
 ```
 
-If you are only interested in looking at only the top features you can use the `plotTopWeights` function.  
-For example, here we plot the mutations with largest loadings on Factor 1. The sign on the right indicates the direction of the loading (positive/negative).
+### Top Weight plots: With these plots, we can also only look at the top features. The sign on the right indicates the direction of the loading (positive/negative). A positive loading indicates that the feature is more active in the cells with positive factor values, while a negative loading indicates that the feature is more active in the cells with negative factor values.
 ```{r}
 plotTopWeights(
   MOFAobject, 
@@ -191,6 +190,21 @@ plotTopWeights(
 )
 ```
 
+Extracting the genomic information for the important CpGs based on the above plot.
+```{r}
+a <- genomic_info["cg21477176",]
+b <- genomic_info["cg01851378",]
+c <- genomic_info["cg04118306",]
+d <- genomic_info["cg11213690",]
+e <- genomic_info["cg14231294",]
+f <- genomic_info["cg26995244",]
+g <- genomic_info["cg17078116",]
+h <- genomic_info["cg26132320",]
+i <- genomic_info["cg05422029",]
+j <- genomic_info["cg25976440",]
+rbind(a,b,c,d,e,f,g,h,i,j)
+```
+
 ```{r}
 plotTopWeights(
   MOFAobject, 
@@ -199,19 +213,17 @@ plotTopWeights(
 )
 ```
 
-Extracting the genomic information for the important CpGs based on the above plot
-
 ```{r}
-a <- genomic_info["cg05422029",]
-b <- genomic_info["cg16206460",]
-c <- genomic_info["cg25976440",]
-d <- genomic_info["cg24511738",]
-e <- genomic_info["cg09165441",]
-f <- genomic_info["cg18267049",]
-g <- genomic_info["cg05937737",]
-h <- genomic_info["cg22396555",]
-i <- genomic_info["cg24604013",]
-j <- genomic_info["cg03738025",]
+a <- genomic_info["cg18557131",]
+b <- genomic_info["cg20395967",]
+c <- genomic_info["cg03738025",]
+d <- genomic_info["cg26995244",]
+e <- genomic_info["cg26444528",]
+f <- genomic_info["cg11213690",]
+g <- genomic_info["cg26132320",]
+h <- genomic_info["cg24604013",]
+i <- genomic_info["cg05937737",]
+j <- genomic_info["cg22396555",]
 rbind(a,b,c,d,e,f,g,h,i,j)
 ```
 
@@ -231,7 +243,7 @@ plotTopWeights(
 )
 ```
 
-
+### Data Heatmaps: Instead of looking at an "abstract" weight, it is useful to observe the coordinated heterogeneity of the top features in the original data. In this plot samples (in rows) are ordered according to their value on the factor. This function extracts the top features for a given factor and view, and generates a heatmap with dimensions (samples,features). This should reveal the underlying heterogeneity that is captured by the latent factor.
 ```{r}
 plotDataHeatmap(
   MOFAobject, 

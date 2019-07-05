@@ -39,8 +39,8 @@ mut.data.COAD <- subset(mut.COAD$dat, mut.var >= quantile(mut.var, 0.90, na.rm=T
 ```
 
 ```{r cna_downsize}
-cna.var <- apply(cna.COAD$dat, 1, function(x) var(x, na.rm=TRUE))
-cna.data.COAD <- subset(cna.COAD$dat, cna.var >= quantile(cna.var, 0.90, na.rm=TRUE))
+cna.var <- apply(cna_COAD$dat, 1, function(x) var(x, na.rm=TRUE))
+cna.data.COAD <- subset(cna_COAD$dat, cna.var >= quantile(cna.var, 0.90, na.rm=TRUE))
 ```
 
 ### Take delta values for methylation and RNAseq (tumor - normal)

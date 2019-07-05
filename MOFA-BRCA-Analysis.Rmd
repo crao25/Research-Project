@@ -27,6 +27,7 @@ Saving the genomic information of all the CpG sites.
 genomic_info <- meth.BRCA$cpgs
 ```
 
+Characterictics of the model
 ```{r}
 # Loading an existing trained model
 MOFAobject <- loadModel("BRCA_model1.hdf5")
@@ -35,6 +36,7 @@ MOFAobject
 
 ## Part 1: Disentangling the heterogeneity: calculation of variance explained by each factor in each view
 
+The figure gives an overview of which latent factors (LF) are active in which view(s). If an LF is active in more than one view, this means that there is (co-variation) between features of different data modalities. Here, for example, LF1 is active in CNA and RNASeq, whwreas LF2 and LF3 are active in CNA and DNA methylation. 
 ```{r}
 # Calculate the variance explained (R2) per factor in each view 
 r2 <- calculateVarianceExplained(MOFAobject)
@@ -51,7 +53,9 @@ fout <- plotFactorCor(MOFAobject)
 
 ## Part 2: Characterisation of individual factors
 ### Inspection of top weighted features in the active views
+Inspection of top features with highest loadings: loading is a measure of feature importance, features with high loadings are the ones driving the heterogeneity captured by the factor. They provide the mapping between the high-dimensional space (the genes) and the low-dimensional space (the factors). They define a score for each gene on each factor, such that genes with no association with the factor are expected to have values close to zero, whereas genes with strong association with the factor are expected to have large absolute values.
 
+#### Weight heat maps: They give an overview of the weights across all factors in a given view. 
 ```{r}
 plotWeightsHeatmap(
   MOFAobject, 
@@ -88,9 +92,89 @@ plotWeightsHeatmap(
 )
 ```
 
+#### Weight plots: To explore a given factor in more detail we can plot all weights for a single factor.
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "cna", 
+  factor = 1, 
+  nfeatures = 5
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "cna", 
+  factor = 2, 
+  nfeatures = 5
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "cna", 
+  factor = 3, 
+  nfeatures = 5
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "meth", 
+  factor = 2, 
+  nfeatures = 5
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "meth", 
+  factor = 3, 
+  nfeatures = 5
+)
+```
+
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "rnaseq", 
+  factor = 1, 
+  nfeatures = 5
+)
+```
+
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "mut", 
+  factor = 3, 
+  nfeatures = 5
+)
+```
 
 If you are only interested in looking at only the top features you can use the `plotTopWeights` function.  
 For example, here we plot the mutations with largest loadings on Factor 1. The sign on the right indicates the direction of the loading (positive/negative).
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna", 
+  factor=1
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna", 
+  factor=2
+)
+```
+
 ```{r}
 plotTopWeights(
   MOFAobject, 
@@ -99,6 +183,13 @@ plotTopWeights(
 )
 ```
 
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="meth", 
+  factor=2
+)
+```
 
 ```{r}
 plotTopWeights(
@@ -124,6 +215,13 @@ j <- genomic_info["cg03738025",]
 rbind(a,b,c,d,e,f,g,h,i,j)
 ```
 
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="rnaseq", 
+  factor=1
+)
+```
 
 ```{r}
 plotTopWeights(
@@ -133,72 +231,12 @@ plotTopWeights(
 )
 ```
 
-```{r}
-plotTopWeights(
-  MOFAobject, 
-  view="rnaseq", 
-  factor=2
-)
-```
-
-
-
-```{r}
-plotWeights(
-  MOFAobject, 
-  view = "cna", 
-  factor = 3, 
-  nfeatures = 5
-)
-```
-
-
-
-```{r}
-plotWeights(
-  MOFAobject, 
-  view = "meth", 
-  factor = 3, 
-  nfeatures = 5
-)
-```
-
-```{r}
-plotWeights(
-  MOFAobject, 
-  view = "mut", 
-  factor = 3, 
-  nfeatures = 5
-)
-```
-
-```{r}
-plotWeights(
-  MOFAobject, 
-  view = "rnaseq", 
-  factor = 2, 
-  nfeatures = 5
-)
-```
-
 
 ```{r}
 plotDataHeatmap(
   MOFAobject, 
   view = "cna", 
-  factor = 3, 
-  features = 5, 
-  show_rownames = FALSE
-)
-```
-
-
-
-```{r}
-plotDataHeatmap(
-  MOFAobject, 
-  view = "meth", 
-  factor = 3, 
+  factor = c(1,2,3), 
   features = 5, 
   show_rownames = FALSE
 )
@@ -207,8 +245,8 @@ plotDataHeatmap(
 ```{r}
 plotDataHeatmap(
   MOFAobject, 
-  view = "mut", 
-  factor = 3, 
+  view = "meth", 
+  factor = c(1,2,3), 
   features = 5, 
   show_rownames = FALSE
 )
@@ -218,7 +256,17 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "rnaseq", 
-  factor = 2, 
+  factor = c(1,2,3), 
+  features = 5, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "mut", 
+  factor = c(1,2,3), 
   features = 5, 
   show_rownames = FALSE
 )

@@ -1,0 +1,215 @@
+---
+title: "Fitting the MOFA model and training"
+output: html_document
+author: "Chaitra Rao"
+---
+
+```{r, cache = TRUE, echo=FALSE}
+knitr::opts_chunk$set(error = TRUE, cache.lazy = FALSE)
+```
+
+## Necessary Packages
+
+```{r libraries, message = FALSE}
+suppressPackageStartupMessages(library(RTCGAToolbox))
+suppressPackageStartupMessages(library(TCGA2STAT))
+suppressPackageStartupMessages(library(curatedTCGAData))
+suppressPackageStartupMessages(library(devtools))
+suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(lumi))
+suppressPackageStartupMessages(library(MOFA))
+suppressPackageStartupMessages(library(MultiAssayExperiment))
+```
+
+### Store the data matrices
+
+```{r meth}
+meth.data.BRCA <- meth.BRCA$dat
+```
+
+```{r rnaseq}
+rnaseq.data.BRCA <- rnaseq.BRCA$dat
+```
+
+```{r mut}
+mut.data.BRCA <- mut.BRCA$dat
+```
+
+```{r cna}
+cna.data.BRCA <- cna.BRCA$dat
+```
+
+### Take delta values for methylation and RNAseq (tumor - normal)
+
+```{r delta_meth}
+meth.BRCA.tum.norm <- TumorNormalMatch(meth.data.BRCA)
+meth_tum <- (meth.BRCA.tum.norm$primary)
+meth_norm <- (meth.BRCA.tum.norm$normal)
+delta_meth <- (meth_tum - meth_norm)
+```
+
+```{r delta_rnaseq}
+rnaseq.BRCA.tum.norm <- TumorNormalMatch(rnaseq.data.BRCA)
+rnaseq_tum <- (rnaseq.BRCA.tum.norm$primary)
+rnaseq_norm <- (rnaseq.BRCA.tum.norm$normal)
+delta_rnaseq <- (rnaseq_tum - rnaseq_norm)
+```
+
+### Convert beta to M values
+
+```{r beta2m}
+delta_meth <- beta2m(delta_meth)
+```
+
+### RemBRCAe NA values from Methylation data
+
+```{r remBRCAe_NA}
+delta_meth <- na.omit(delta_meth)
+```
+
+
+### Clinical data
+
+```{r store_clinical}
+clin_data.BRCA <- data.matrix(cna.BRCA$clinical)
+```
+
+### Filtering tumor CNA
+
+CNA downloaded this way has both normal and tumor readouts; getting rid of normal tissue (that is, getting barcodes with `01` as fourth element at the barcode).
+
+```{r filter_tumor_cna}
+is_tumor <- sapply(strsplit(colnames(cna.data.BRCA), '-'), function(x) return(grepl('^01', x[4])))
+cna_tumors <- cna.data.BRCA[,colnames(cna.data.BRCA)[is_tumor]]
+```
+
+### Trimming the colnames (TCGA barcodes)
+
+```{r trimming}
+string1 <- colnames(delta_rnaseq)
+colnames(delta_rnaseq) <- substring(string1, 1, 12)
+string2 <- colnames(delta_meth)
+colnames(delta_meth) <- substring(string2, 1, 12)
+string3 <- colnames(mut.data.BRCA)
+colnames(mut.data.BRCA) <- substring(string3, 1, 12)
+## string4 <- colnames(cna.BRCA$dat)
+## colnames(cna.BRCA$dat) <- substring(string4, 1, 12)
+colnames(cna_tumors) <-  substring(colnames(cna_tumors), 1, 12)
+
+```
+
+
+```{r datamatrices}
+rnaseq_data <- delta_rnaseq
+meth_data <- delta_meth
+mut_data <- mut.data.BRCA
+cna_data <- cna_tumors
+
+```
+
+
+### Making a list out of the retrieved data and getting the coldata for MOFA
+
+```{r mofalist}
+BRCA_list <- list(rnaseq = rnaseq_data,
+          meth = meth_data,
+          mut = mut_data,
+          cna = cna_data)
+
+#Ensuring duplicate colnames are not present, and taking them out if so
+sapply(BRCA_list, function(x) table(duplicated(colnames(x))))
+## these are duplicated
+sapply(BRCA_list, function(x) colnames(x)[duplicated(colnames(x))])
+## not going further on the reasons of the duplications: just getting unique stuff
+for (item in names(BRCA_list)) {
+    BRCA_list[[item]] <- BRCA_list[[item]][,unique(colnames(BRCA_list[[item]]))]
+}
+sapply(BRCA_list, function(x) table(duplicated(colnames(x))))
+```
+
+```{r columndata}
+cdata = as.data.frame(clin_data.BRCA)
+```
+
+## Getting the MOFAobject
+
+```{r mofaobject}
+BRCA_mae <- MultiAssayExperiment(
+  experiments = BRCA_list, 
+  colData = cdata)
+
+BRCA_data <- createMOFAobject(BRCA_mae)
+```
+
+## Define options
+
+### Define data options
+The most important options the user needs to define are:  
+
+* **scaleViews**: logical indicating whether to scale views to have unit variance. As long as the scale of the different data sets is not too high, this is not required. Default is `FALSE`.  
+
+* **removeIncompleteSamples**: logical indicating whether to remove samples that are not profiled in all omics. The model can cope with missing assays, so this option is not required. Default is `FALSE`.  
+
+```{r}
+DataOptions <- getDefaultDataOptions()
+DataOptions 
+```
+
+### Define model options
+Next, we define model options. The most important are:  
+
+* **numFactors**: number of factors (default is 0.5 times the number of samples). By default, the model will only remove a factor if it explains exactly zero variance in the data. You can increase this threshold on minimum variance explained by setting `TrainOptions$dropFactorThreshold` to a value higher than zero.  
+
+* **likelihoods**: likelihood for each view. Usually we recommend gaussian for continuous data, bernoulli for binary data and poisson for count data. By default, the model tries to guess it from the data.  
+
+* **sparsity**: do you want to use sparsity? This makes the interpretation easier so it is recommended (Default is `TRUE`).  
+```{r}
+ModelOptions <- getDefaultModelOptions(BRCA_data)
+ModelOptions$numFactors <- 25
+ModelOptions
+```
+
+### Define training options
+Next, we define training options. The most important are:  
+
+* **maxiter**: maximum number of iterations. Ideally set it large enough and use the convergence criterion `TrainOptions$tolerance`.  
+
+* **tolerance**: convergence threshold based on change in the evidence lower bound. For an exploratory run you can use a value between 1.0 and 0.1, but for a "final" model we recommend a value of 0.01.  
+
+* **DropFactorThreshold**: hyperparameter to automatically learn the number of factors based on a minimum variance explained criteria. Factors explaining less than `DropFactorThreshold` fraction of variation in all views will be removed. For example, a value of 0.01 means that factors that explain less than 1\% of variance in all views will be discarded. By default this it zero, meaning that all factors are kept unless they explain no variance at all.  
+
+```{r}
+TrainOptions <- getDefaultTrainOptions()
+# Automatically drop factors that explain less than 5% of variance in all omics
+TrainOptions$DropFactorThreshold <- 0.05
+TrainOptions$seed <- 2017
+TrainOptions
+```
+
+## Prepare MOFA
+`prepareMOFA` internally performs a set of sanity checks and fills the `DataOptions`, `TrainOptions` and `ModelOptions` slots of the `MOFAobject`
+```{r}
+BRCA_data <- prepareMOFA(
+  BRCA_data, 
+  DataOptions = DataOptions,
+  ModelOptions = ModelOptions,
+  TrainOptions = TrainOptions
+)
+```
+
+## Run MOFA
+Now we are ready to train the `MOFAobject`, which is done with the function `runMOFA`. This step can take some time (around 15 min with default parameters). For illustration we provide an existing trained `MOFAobject`.  
+IMPORTANT NOTE: The software has evolved since the original publication and the results are not 100% reproducible with the last versions. Yet, the output should be very similar (if not improved) to the pre-existent model.
+```{r, eval=TRUE}
+BRCA_data <- runMOFA(BRCA_data)
+```
+
+# Session info
+
+```{r sessionInfo, cache = TRUE}
+date()
+devtools::session_info()
+```
+
+
+

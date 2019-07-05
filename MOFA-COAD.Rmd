@@ -74,7 +74,7 @@ delta_meth <- na.omit(delta_meth)
 ### Clinical data
 
 ```{r store_clinical}
-clin_data.COAD <- data.matrix(cna.COAD$clinical)
+clin_data.COAD <- data.matrix(cna_COAD$clinical)
 ```
 
 ### Filtering tumor CNA

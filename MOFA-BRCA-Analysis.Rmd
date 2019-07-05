@@ -56,7 +56,7 @@ fout <- plotFactorCor(MOFAobject)
 plotWeightsHeatmap(
   MOFAobject, 
   view = "cna", 
-  factors = 1:6,
+  factors = 1:3,
   show_colnames = FALSE
 )
 ```
@@ -65,7 +65,7 @@ plotWeightsHeatmap(
 plotWeightsHeatmap(
   MOFAobject, 
   view = "mut", 
-  factors = 1:6,
+  factors = 1:3,
   show_colnames = FALSE
 )
 ```
@@ -74,7 +74,7 @@ plotWeightsHeatmap(
 plotWeightsHeatmap(
   MOFAobject, 
   view = "rnaseq", 
-  factors = 1:6,
+  factors = 1:3,
   show_colnames = FALSE
 )
 ```
@@ -83,7 +83,7 @@ plotWeightsHeatmap(
 plotWeightsHeatmap(
   MOFAobject, 
   view = "meth", 
-  factors = 1:6,
+  factors = 1:3,
   show_colnames = FALSE
 )
 ```
@@ -95,7 +95,7 @@ For example, here we plot the mutations with largest loadings on Factor 1. The s
 plotTopWeights(
   MOFAobject, 
   view="cna", 
-  factor=1
+  factor=3
 )
 ```
 
@@ -104,7 +104,7 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="meth", 
-  factor=4
+  factor=3
 )
 ```
 
@@ -147,7 +147,7 @@ plotTopWeights(
 plotWeights(
   MOFAobject, 
   view = "cna", 
-  factor = 1, 
+  factor = 3, 
   nfeatures = 5
 )
 ```
@@ -158,7 +158,7 @@ plotWeights(
 plotWeights(
   MOFAobject, 
   view = "meth", 
-  factor = 4, 
+  factor = 3, 
   nfeatures = 5
 )
 ```
@@ -186,7 +186,7 @@ plotWeights(
 plotDataHeatmap(
   MOFAobject, 
   view = "cna", 
-  factor = 1, 
+  factor = 3, 
   features = 5, 
   show_rownames = FALSE
 )
@@ -198,7 +198,7 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "meth", 
-  factor = 4, 
+  factor = 3, 
   features = 5, 
   show_rownames = FALSE
 )

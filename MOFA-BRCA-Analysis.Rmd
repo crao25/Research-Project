@@ -236,7 +236,27 @@ plotTopWeights(
 plotDataHeatmap(
   MOFAobject, 
   view = "cna", 
-  factors = 1:3, 
+  factor = 1, 
+  features = 5, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "cna", 
+  factor = 2, 
+  features = 5, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "cna", 
+  factor = 3, 
   features = 5, 
   show_rownames = FALSE
 )
@@ -246,7 +266,17 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "meth", 
-  factors = 1:3, 
+  factor = 2, 
+  features = 5, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
+  view = "meth", 
+  factor = 3, 
   features = 5, 
   show_rownames = FALSE
 )
@@ -256,7 +286,7 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "rnaseq", 
-  factors = 1:3, 
+  factor = 1, 
   features = 5, 
   show_rownames = FALSE
 )
@@ -266,7 +296,7 @@ plotDataHeatmap(
 plotDataHeatmap(
   MOFAobject, 
   view = "mut", 
-  factors = 1:3, 
+  factor = 3, 
   features = 5, 
   show_rownames = FALSE
 )

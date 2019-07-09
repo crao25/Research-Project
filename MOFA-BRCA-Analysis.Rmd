@@ -160,6 +160,15 @@ plotWeights(
 )
 ```
 
+```{r}
+plotWeights(
+  MOFAobject, 
+  view = "mut", 
+  factor = 1, 
+  nfeatures = 5
+)
+```
+
 #### Top Weight plots: Plots featuring top weights for a given LF in a given view
 With these plots, we can only look at the top features. The sign on the right indicates the direction of the loading (positive/negative). A positive loading indicates that the feature is more active in the cells with positive factor values, while a negative loading indicates that the feature is more active in the cells with negative factor values.
 ```{r}

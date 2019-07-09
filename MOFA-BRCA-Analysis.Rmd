@@ -36,7 +36,7 @@ MOFAobject
 
 ## Part 1: Disentangling the heterogeneity: calculation of variance explained by each factor in each view
 
-The figure gives an overview of which latent factors (LF) are active in which view(s). If an LF is active in more than one view, this means that there is (co-variation) between features of different data modalities. Here, for example, LF1 is active in CNA and RNASeq, whwreas LF2 and LF3 are active in CNA and DNA methylation. 
+For each view, the coefficient of determination (R2) is calculated, which is the proportion of variance in the data explained by the latent facors (LFs) (both jointly or for each individual factor). For non-gaussian views (in our case, the somatic mutations which take binary data), the variance explained on the Gaussian pseudo-data is calculated. The plot gives an overview of which LFs are active in which view(s). In a way, it summarized the entire heterogeniety of the dataset. If an LF is active in more than one view, this means that there is (co-variation) between features of different data modalities. Here, for example, LF1 is active in CNA and RNASeq, whwreas LF2 and LF3 are active in CNA and DNA methylation. Hence, one can conclude here that there is some co-variation between features of CNA and DNA Methylation explained by LF2 and LF3 and a co-variation is observed between CNA and RNAseq which is explained by LF1. This plot guides further characterization of the fcators by investigating the weights in those views. 
 ```{r}
 # Calculate the variance explained (R2) per factor in each view 
 r2 <- calculateVarianceExplained(MOFAobject)
@@ -47,15 +47,17 @@ head(r2$R2PerFactor)
 plotVarianceExplained(MOFAobject)
 ```
 
+A diagonal correlation matrix is expected because the model encourages the factors to be uncorrelated. A slight correlation might occur because it is not a hard constraint such as in PCA. But largely correlated factors are redundant and should be avoided to make the interpretation easier. In the below plot, one can see that it is mostly a diagonal correlation matrix, which slight correlations between the individual factors. However, these correlations are not too large, hence we can continue characterizing the individual factors.
 ```{r}
 fout <- plotFactorCor(MOFAobject)
 ```
 
 ## Part 2: Characterisation of individual factors
 ### Inspection of top weighted features in the active views
-Inspection of top features with highest loadings: One of the first steps for the annotation of a given factor is to visualize the corresponding loadings. Loading is a measure of feature importance, features with high loadings are the ones driving the heterogeneity captured by the factor. They provide the mapping between the high-dimensional space (the genes) and the low-dimensional space (the factors). They define a score for each gene on each factor, such that genes with no association with the factor are expected to have values close to zero, whereas genes with strong association with the factor are expected to have large absolute values.
+Inspection of top features with highest loadings: One of the first steps for the annotation of a given factor is to visualize the corresponding loadings. Loading is a measure of feature importance, features with high loadings are the ones driving the heterogeneity captured by the factor. They provide the mapping between the high-dimensional space (the genes) and the low-dimensional space (the factors). They define a score for each gene on each factor, such that genes with no association with the factor are expected to have values close to zero, whereas genes with strong association with the factor are expected to have large absolute values. Important plots here are the weight heatmaps, weight plots, top weight plots and data heatmaps.
 
 #### Weight Heatmaps: They give an overview of the weights across all factors in a given view. 
+Visualize the overall pattern of weights, but not characterize the individual factors. 
 ```{r}
 plotWeightsHeatmap(
   MOFAobject, 
@@ -64,7 +66,7 @@ plotWeightsHeatmap(
   show_colnames = FALSE
 )
 ```
-
+Here, we observe that all the factors have large non-zero values. Hence, it would be interesting to investigate these factors individually. 
 ```{r}
 plotWeightsHeatmap(
   MOFAobject, 
@@ -73,7 +75,7 @@ plotWeightsHeatmap(
   show_colnames = FALSE
 )
 ```
-
+In the variance explained plot, we saw that none of the factors explained a lot of variation in somatic mutations. However, in the above plot, we can see that LF1 might be explaining some variation as it has slightly large non-zero value, but also LF2 and LF3 to some extent.
 ```{r}
 plotWeightsHeatmap(
   MOFAobject, 
@@ -82,7 +84,7 @@ plotWeightsHeatmap(
   show_colnames = FALSE
 )
 ```
-
+In case of RNAseq, LF1 has larger non-zero values compared to remaining LFs.
 ```{r}
 plotWeightsHeatmap(
   MOFAobject, 
@@ -91,6 +93,7 @@ plotWeightsHeatmap(
   show_colnames = FALSE
 )
 ```
+As we saw in the variance explained plot as well, LF2 and LF3 are active in DNA Methylation view and hence they also have large non-zero values, as seen in the weight heatmaps. Thus, we analyze these factors further in more detail.
 
 #### Weight plots: To explore a given factor in more detail we can plot all weights for a single factor.
 ```{r}
@@ -119,7 +122,7 @@ plotWeights(
   nfeatures = 5
 )
 ```
-
+Features with large absolute weight on a given factor explain a pattern of covariation associated with that particular factor. If we look at the above plots, we observe that LF1 is strongly associated with a CNA loss in the genes presented in the plot, LF2 and LF3 are linked with CNA gain in the genes presented in the respective plots.
 ```{r}
 plotWeights(
   MOFAobject, 
@@ -157,7 +160,8 @@ plotWeights(
 )
 ```
 
-### Top Weight plots: With these plots, we can also only look at the top features. The sign on the right indicates the direction of the loading (positive/negative). A positive loading indicates that the feature is more active in the cells with positive factor values, while a negative loading indicates that the feature is more active in the cells with negative factor values.
+#### Top Weight plots: Plots featuring top weights for a given LF in a given view
+With these plots, we can only look at the top features. The sign on the right indicates the direction of the loading (positive/negative). A positive loading indicates that the feature is more active in the cells with positive factor values, while a negative loading indicates that the feature is more active in the cells with negative factor values.
 ```{r}
 plotTopWeights(
   MOFAobject, 
@@ -196,7 +200,7 @@ a <- genomic_info["cg21477176",]
 b <- genomic_info["cg01851378",]
 c <- genomic_info["cg04118306",]
 d <- genomic_info["cg11213690",]
-e <- genomic_info["cg14231294",]
+e <- genomic_info["cg14231297",]
 f <- genomic_info["cg26995244",]
 g <- genomic_info["cg17078116",]
 h <- genomic_info["cg26132320",]
@@ -243,7 +247,8 @@ plotTopWeights(
 )
 ```
 
-### Data Heatmaps: Instead of looking at an "abstract" weight, it is useful to observe the coordinated heterogeneity of the top features in the original data. In this plot samples (in rows) are ordered according to their value on the factor. This function extracts the top features for a given factor and view, and generates a heatmap with dimensions (samples,features). This should reveal the underlying heterogeneity that is captured by the latent factor.
+#### Data Heatmaps: Heatmaps featuring the input data for relevant features
+Instead of looking at an "abstract" weight, it is useful to observe the coordinated heterogeneity of the top features in the original data. In this plot samples (in rows) are ordered according to their value on the factor. This function extracts the top features for a given factor and view, and generates a heatmap with dimensions (samples,features). This should reveal the underlying heterogeneity that is captured by the latent factor.
 ```{r}
 plotDataHeatmap(
   MOFAobject, 

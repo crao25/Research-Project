@@ -182,14 +182,6 @@ plotTopWeights(
 )
 ```
 
-```{r}
-plotTopWeights(
-  MOFAobject, 
-  view="cna", 
-  factor=1,
-  scalePerView = TRUE
-)
-```
 
 ```{r}
 plotTopWeights(

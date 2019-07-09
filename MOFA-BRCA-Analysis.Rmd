@@ -36,7 +36,7 @@ MOFAobject
 
 ## Part 1: Disentangling the heterogeneity: calculation of variance explained by each factor in each view
 
-For each view, the coefficient of determination (R2) is calculated, which is the proportion of variance in the data explained by the latent facors (LFs) (both jointly or for each individual factor). For non-gaussian views (in our case, the somatic mutations which take binary data), the variance explained on the Gaussian pseudo-data is calculated. The plot gives an overview of which LFs are active in which view(s). In a way, it summarized the entire heterogeniety of the dataset. If an LF is active in more than one view, this means that there is (co-variation) between features of different data modalities. Here, for example, LF1 is active in CNA and RNASeq, whwreas LF2 and LF3 are active in CNA and DNA methylation. Hence, one can conclude here that there is some co-variation between features of CNA and DNA Methylation explained by LF2 and LF3 and a co-variation is observed between CNA and RNAseq which is explained by LF1. This plot guides further characterization of the fcators by investigating the weights in those views. 
+For each view, the coefficient of determination (R2) is calculated, which is the proportion of variance in the data explained by the latent facors (LFs) (both jointly or for each individual factor). For non-gaussian views (in our case, the somatic mutations which take binary data), the variance explained on the Gaussian pseudo-data is calculated. The plot gives an overview of which LFs are active in which view(s). In a way, it summarized the entire heterogeniety of the dataset. If an LF is active in more than one view, this means that there is (co-variation) between features of different data modalities. Here, for example, LF1 is active in CNA and RNASeq, whereas LF2 and LF3 are active in CNA and DNA methylation. Hence, one can conclude here that there is some co-variation between features of CNA and DNA Methylation explained by LF2 and LF3 and a co-variation is observed between CNA and RNAseq which is explained by LF1. This plot guides further characterization of the fcators by investigating the weights in those views. 
 ```{r}
 # Calculate the variance explained (R2) per factor in each view 
 r2 <- calculateVarianceExplained(MOFAobject)
@@ -46,6 +46,9 @@ head(r2$R2PerFactor)
 # Plot it
 plotVarianceExplained(MOFAobject)
 ```
+
+
+#### Correlation matrix
 
 A diagonal correlation matrix is expected because the model encourages the factors to be uncorrelated. A slight correlation might occur because it is not a hard constraint such as in PCA. But largely correlated factors are redundant and should be avoided to make the interpretation easier. In the below plot, one can see that it is mostly a diagonal correlation matrix, which slight correlations between the individual factors. However, these correlations are not too large, hence we can continue characterizing the individual factors.
 ```{r}
@@ -351,6 +354,12 @@ plotDataHeatmap(
   features = 5, 
   show_rownames = FALSE
 )
+```
+
+```{r}
+getWeights(MOFAobject, views = "all", factors = "all",
+  as.data.frame = TRUE)
+
 ```
 
 

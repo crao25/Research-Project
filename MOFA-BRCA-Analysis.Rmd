@@ -251,8 +251,24 @@ plotTopWeights(
 ```{r}
 plotTopWeights(
   MOFAobject, 
+  view="rnaseq", 
+  factor=2
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
   view="mut", 
   factor=3
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="mut", 
+  factor=1
 )
 ```
 

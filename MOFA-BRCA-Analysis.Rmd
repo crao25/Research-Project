@@ -349,7 +349,7 @@ plotDataHeatmap(
 ```
 
 ```{r}
-getWeights(MOFAobject, views = "all", factors = "all",
+getWeights(MOFAobject, views = "cna", factors = "1",
   as.data.frame = TRUE)
 
 ```

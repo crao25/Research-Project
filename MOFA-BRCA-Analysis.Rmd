@@ -183,6 +183,15 @@ plotTopWeights(
 plotTopWeights(
   MOFAobject, 
   view="cna", 
+  factor=1,
+  sign = "positive"
+)
+```
+
+```{r}
+plotTopWeights(
+  MOFAobject, 
+  view="cna", 
   factor=2
 )
 ```

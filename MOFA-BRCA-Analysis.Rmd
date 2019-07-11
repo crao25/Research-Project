@@ -2,11 +2,39 @@
 title: "Application of MOFA on BRCA data"
 output: html_document
 author: "Chaitra Rao"
+date: "July 11, 2019"
 ---
 
 ```{r, cache = TRUE, echo=FALSE}
 knitr::opts_chunk$set(error = TRUE, cache.lazy = FALSE)
 ```
+
+## MOFA - Method Overview and its Application
+Multi-Omics Factor Analysis (MOFA) is a statistical method used for integrating multiple modalities of omics data. It is an unsupervised integration method which learns a set of latent factors and aims to characterize heterogeneity among samples. These learnt latent factors (LFs) inferred by MOFA help capture the major sources of variation across these multiple modalities. They discover the major biological and technical sorces of variability. The factor loadings help in performing a broad range of downstream analyses, such as visualization, clustering and classification of samples in the low-dimensional space spanned by the factors. These factor loadings or weights are sparse, hence this facilitates linkage between factors and most relevant molecular features. 2 level regularization is required to ensure this sparsity: one encourages view and feature wise sparsity, meaning it directly identifies which factor is active in which view; second one encourages feature wise sparsity, which typically result in small number of features with active weights. The LFs can be unique to each dataset or be manifested across more than one dataset. This reveals the fact that there is a shared axes of variation between the different data modalities. The statistical framework that MOFA is based on consists of: 
+
+* Fast inference based on a variational approximation
+* Inference of sparse solutions facilitating interpretation
+* Efficient handling of missing values
+* Flexible combination of different likelihood models for each data modality, hence enabling integration of diverse data types, be it binary, count or continuous valued data.
+
+MOFA was applied to a cohort of 1094 patient samples of BRCA, profiled for somatic mutations, CNA, RNASeq and DNA Methylation. This contained of diverse data types, hence the appropriate likelihood model was taken for each dataset:
+
+* RNAseq data - continuous data - Gaussian likelihood
+* DNA Methylation data - continuous data - Gaussian likelihood
+* Somatic Mutation data - binary data - Bernoulli likelihood
+* Copy Number Alteration data - continuous data - Gaussian likelihood
+
+3 latent factors were identified, with a minimum explained variance set to 5%. This means that if a factor explained less than 5% of variance in any dataset, the factor would be dropped and the training would restart. This is known as the drop factor threshold which enables the pruning of factors during training. The convergence threshold for the model is based on the evidence lower bound (ELBO) and for this a value of 0.1 was used. To sum it up, the model was initialized with 25 factors and they were pruned using a threshold of variance explained of 5%. Further details on the data and training options can be found in the MOFA-BRCA.html or MOFA-BRCA.pdf file. 
+
+Cumulatively, the 3 factors explained about 38% of variation in CNA data,  3% in DNA Methylation data, 2% in the RNAseq data and less than 1% in the somatic mutation data. This is visualized in the "Total Variance explained per view" plot.
+
+Some important features were identified in BRCA which were aligned with specific factors. For this purpose the loadings of the features on individual factors were used to identify the etiology. Top weights plot was very useful for this purpose. For example, based on it in the CNA data, the individual LFs were found to be aligned with a set of genes with same abosulte loading. This could mean that the genes are most probably located close to each other and on the same chromosome.  I tried to connect LF1 factor to other molecular layer, namely, changes in the gene expression. We found that factor 1 was mainly associated with the gene expression status of ATP1A1 gene. LF1 captured about 17% variance in the CNA data, whereas in the gene expression data, it explained just about 2% variance. Another important factor was factor 2, active in both CNA and DNA methylation views. Analysis of the weights in the DNA methylation revealed that this factor tagged the CACNG7 gene, which is a calcium channel regulatory subunit. To check how this factor is associated with the gene expression data, I analysed its weights and it revealed that LF2 is aligned with gene expression of ARF1 gene. It has been previously established that ARF1 is the most amplified gene from the ARF gene family in breast cancer. [Xie. X et al.](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5295416/pdf/oncotarget-07-58111.pdf) The LF3 was analysed for its role in CNA, DNA methylation and somatic mutation datasets. LF3 is aligned with the mutation status of the TP53 gene, whereas in the methylation dataset, the methylation status of ZIC5 gene is linked with LF3. About 9% of variance is captured by LF3 in the CNA dataset, 2% in the DNA methylation and less than 0.02% in the mutation dataset. 
+
+## Outlook
+With the help of MOFA, I was able to provide a basis which can serve as a guideline for further downstream analysis, such as gene set enrichment analysis, survival analysis. Gene set enrichment analysis, for example, would help in identifying the aetiologies of the top features related to certain biological pathways and processes. Furthermore, new likelihoods and noise models can be introduced which can encourage the application of MOFA in datasets with specific statistical properties. Using the latent factors to explain their associations with external data such as clinical covariates or use them as predictors in models of clinical outcomes would be an interesting approach as well. One of the limitations of MOFA is that the model is linear, in which case lot of non-linear relationships between features can be missed. Hence, a non-linear extension of MOFA may be able to tackle this problem, however one may expect some kind of trade-off between the model complexity, computational efficiency and interpretability. 
+
+## Results
+The results and the individual plots along with their siginificance are presented below. 
 
 ## Necessary Packages
 
@@ -78,7 +106,7 @@ plotWeightsHeatmap(
   show_colnames = FALSE
 )
 ```
-In the variance explained plot, we saw that none of the factors explained a lot of variation in somatic mutations. However, in the above plot, we can see that LF1 might be explaining some variation as it has slightly large non-zero value, but also LF2 and LF3 to some extent.
+In the "variance explained per factor" plot, we saw that none of the factors explained a lot of variation in somatic mutations. However, in the above plot, we can see that LF1 might be explaining some variation as it has slightly large non-zero value, but also LF2 and LF3 to some extent.
 ```{r}
 plotWeightsHeatmap(
   MOFAobject, 
@@ -96,7 +124,7 @@ plotWeightsHeatmap(
   show_colnames = FALSE
 )
 ```
-As we saw in the variance explained plot as well, LF2 and LF3 are active in DNA Methylation view and hence they also have large non-zero values, as seen in the weight heatmaps. Thus, we analyze these factors further in more detail.
+As we saw in the "variance explained per factor" plot as well, LF2 and LF3 are active in DNA Methylation view and hence they also have large non-zero values, as seen in the weight heatmaps. Thus, we analyze these factors further in more detail.
 
 #### Weight plots: To explore a given factor in more detail we can plot all weights for a single factor.
 ```{r}
@@ -125,7 +153,7 @@ plotWeights(
   nfeatures = 5
 )
 ```
-Features with large absolute weight on a given factor explain a pattern of covariation associated with that particular factor. If we look at the above plots, we observe that LF1 is strongly associated with a CNA loss in the genes presented in the plot, LF2 and LF3 are linked with CNA gain in the genes presented in the respective plots.
+Features with large absolute weight on a given factor explain a pattern of covariation associated with that particular factor. The reason that the factors are aligned with so many features with similar weight loadings could be that the genes are very close to each other. The variance decomposition plots reveal that there is a shared axes of variation between the different omics layers. Hence, LF1 will be further characterized for its role in RNAseq view, LF2 in the DNA methylation view and LF3 in DNA methylation and mutation views.
 ```{r}
 plotWeights(
   MOFAobject, 
@@ -143,7 +171,6 @@ plotWeights(
   nfeatures = 5
 )
 ```
-
 
 ```{r}
 plotWeights(
@@ -163,14 +190,6 @@ plotWeights(
 )
 ```
 
-```{r}
-plotWeights(
-  MOFAobject, 
-  view = "mut", 
-  factor = 1, 
-  nfeatures = 5
-)
-```
 
 #### Top Weight plots: Plots featuring top weights for a given LF in a given view
 With these plots, we can only look at the top features. The sign on the right indicates the direction of the loading (positive/negative). A positive loading indicates that the feature is more active in the cells with positive factor values, while a negative loading indicates that the feature is more active in the cells with negative factor values.
@@ -268,13 +287,6 @@ plotTopWeights(
 )
 ```
 
-```{r}
-plotTopWeights(
-  MOFAobject, 
-  view="mut", 
-  factor=1
-)
-```
 
 #### Data Heatmaps: Heatmaps featuring the input data for relevant features
 Instead of looking at an "abstract" weight, it is useful to observe the coordinated heterogeneity of the top features in the original data. In this plot samples (in rows) are ordered according to their value on the factor. This function extracts the top features for a given factor and view, and generates a heatmap with dimensions (samples,features). This should reveal the underlying heterogeneity that is captured by the latent factor.
@@ -341,6 +353,16 @@ plotDataHeatmap(
 ```{r}
 plotDataHeatmap(
   MOFAobject, 
+  view = "rnaseq", 
+  factor = 2, 
+  features = 5, 
+  show_rownames = FALSE
+)
+```
+
+```{r}
+plotDataHeatmap(
+  MOFAobject, 
   view = "mut", 
   factor = 3, 
   features = 5, 
@@ -348,8 +370,9 @@ plotDataHeatmap(
 )
 ```
 
+This function extracts the weights from the model for all views and factors.
 ```{r}
-getWeights(MOFAobject, views = "cna", factors = "1",
+getWeights(MOFAobject, views = "all", factors = "all",
   as.data.frame = TRUE)
 
 ```

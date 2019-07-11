@@ -372,7 +372,7 @@ plotDataHeatmap(
 
 This function extracts the weights from the model for all views and factors.
 ```{r}
-getWeights(MOFAobject, views = "all", factors = "all",
+weight <- getWeights(MOFAobject, views = "all", factors = "all",
   as.data.frame = TRUE)
 
 ```

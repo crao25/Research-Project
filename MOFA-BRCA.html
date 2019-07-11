@@ -209,12 +209,12 @@ suppressPackageStartupMessages(library(MultiAssayExperiment))</code></pre>
 <h3>Downsize all the data to top 1% variance</h3>
 <pre class="r"><code>meth.var &lt;- apply(meth.BRCA$dat, 1, function(x) var(x, na.rm=TRUE))
 meth.data.BRCA &lt;- subset(meth.BRCA$dat, meth.var &gt;= quantile(meth.var, 0.90, na.rm = TRUE))</code></pre>
-<pre class="r"><code>rnaseq.var &lt;- apply(rnaseq.BRCA$dat, 1, var)
-rnaseq.data.BRCA &lt;- subset(rnaseq.BRCA$dat, rnaseq.var &gt;= quantile(rnaseq.var, 0.99, na.rm=T) &amp; !is.na(rnaseq.var))</code></pre>
-<pre class="r"><code>mut.var &lt;- apply(mut.BRCA$dat, 1, var)
-mut.data.BRCA &lt;- subset(mut.BRCA$dat, mut.var &gt;= quantile(mut.var, 0.99, na.rm=T) &amp; !is.na(mut.var))</code></pre>
-<pre class="r"><code>cna.var &lt;- apply(cna.BRCA$dat, 1, var)
-cna.data.BRCA &lt;- subset(cna.BRCA$dat, cna.var &gt;= quantile(cna.var, 0.99, na.rm=T) &amp; !is.na(cna.var))</code></pre>
+<pre class="r"><code>rnaseq.var &lt;- apply(rnaseq.BRCA$dat, 1, function(x) var(x, na.rm=TRUE))
+rnaseq.data.BRCA &lt;- subset(rnaseq.BRCA$dat, rnaseq.var &gt;= quantile(rnaseq.var, 0.90, na.rm=TRUE))</code></pre>
+<pre class="r"><code>mut.var &lt;- apply(mut.BRCA$dat, 1, function(x) var(x, na.rm=TRUE))
+mut.data.BRCA &lt;- subset(mut.BRCA$dat, mut.var &gt;= quantile(mut.var, 0.90, na.rm=TRUE))</code></pre>
+<pre class="r"><code>cna.var &lt;- apply(cna.BRCA$dat, 1, function(x) var(x, na.rm=TRUE))
+cna.data.BRCA &lt;- subset(cna.BRCA$dat, cna.var &gt;= quantile(cna.var, 0.90, na.rm=TRUE))</code></pre>
 </div>
 <div id="take-delta-values-for-methylation-and-rnaseq-tumor---normal" class="section level3">
 <h3>Take delta values for methylation and RNAseq (tumor - normal)</h3>

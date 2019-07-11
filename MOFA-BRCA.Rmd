@@ -22,8 +22,8 @@ suppressPackageStartupMessages(library(MOFA))
 suppressPackageStartupMessages(library(MultiAssayExperiment))
 ```
 
+The following preprocessing steps are repeated here, despite being included in the data retrieval code. This is because, one can make changes in the preprocessing steps without going back to the data retrieval code and performing the retriavl process again (which takes a long time to finish).
 ### Downsize all the data to 90% quantile
-This step is repeated here, despite being included in the data retrieval code. This is because, one can make changes in the preprocessing steps without going back to the data retrieval code and performing the retriavl process again (which takes a long time to finish).
 
 ```{r meth_downsize}
 meth.var <- apply(meth.BRCA$dat, 1, function(x) var(x, na.rm=TRUE))

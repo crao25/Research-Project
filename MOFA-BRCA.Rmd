@@ -2,6 +2,7 @@
 title: "Fitting the MOFA model and training"
 output: html_document
 author: "Chaitra Rao"
+date: "July 11, 2019"
 ---
 
 ```{r, cache = TRUE, echo=FALSE}

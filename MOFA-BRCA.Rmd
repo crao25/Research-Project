@@ -21,7 +21,8 @@ suppressPackageStartupMessages(library(MOFA))
 suppressPackageStartupMessages(library(MultiAssayExperiment))
 ```
 
-### Downsize all the data to top 1% variance
+### Downsize all the data to 90% quantile
+This step is repeated here, despite being included in the data retrieval code. This is because, one can make changes in the preprocessing steps without going back to the data retrieval code and performing the retriavl process again (which takes a long time to finish).
 
 ```{r meth_downsize}
 meth.var <- apply(meth.BRCA$dat, 1, function(x) var(x, na.rm=TRUE))
@@ -65,12 +66,11 @@ delta_rnaseq <- (rnaseq_tum - rnaseq_norm)
 delta_meth <- beta2m(delta_meth)
 ```
 
-### RemBRCAe NA values from Methylation data
+### Remove NA values from Methylation data
 
-```{r remBRCAe_NA}
+```{r remove_NA}
 delta_meth <- na.omit(delta_meth)
 ```
-
 
 ### Clinical data
 
@@ -162,11 +162,11 @@ DataOptions
 ### Define model options
 Next, we define model options. The most important are:  
 
-* **numFactors**: number of factors (default is 0.5 times the number of samples). By default, the model will only remove a factor if it explains exactly zero variance in the data. You can increase this threshold on minimum variance explained by setting `TrainOptions$dropFactorThreshold` to a value higher than zero.  
+* **numFactors**: number of factors - starting value set to 25. By default, the model will only remove a factor if it explains exactly zero variance in the data. You can increase this threshold on minimum variance explained by setting `TrainOptions$dropFactorThreshold` to a value higher than zero.  
 
-* **likelihoods**: likelihood for each view. Usually we recommend gaussian for continuous data, bernoulli for binary data and poisson for count data. By default, the model tries to guess it from the data.  
+* **likelihoods**: likelihood for each view. Recommended: gaussian for continuous data, bernoulli for binary data and poisson for count data. By default, the model tries to guess it from the data.  
 
-* **sparsity**: do you want to use sparsity? This makes the interpretation easier so it is recommended (Default is `TRUE`).  
+* **sparsity**: This makes the interpretation easier so it is recommended (Default is `TRUE`).   
 ```{r}
 ModelOptions <- getDefaultModelOptions(BRCA_data)
 ModelOptions$numFactors <- 25
@@ -178,10 +178,9 @@ Next, we define training options. The most important are:
 
 * **maxiter**: maximum number of iterations. Ideally set it large enough and use the convergence criterion `TrainOptions$tolerance`.  
 
-* **tolerance**: convergence threshold based on change in the evidence lower bound. For an exploratory run you can use a value between 1.0 and 0.1, but for a "final" model we recommend a value of 0.01.  
+* **tolerance**: convergence threshold based on change in the evidence lower bound. The value is set to 0.1.  
 
 * **DropFactorThreshold**: hyperparameter to automatically learn the number of factors based on a minimum variance explained criteria. Factors explaining less than `DropFactorThreshold` fraction of variation in all views will be removed. For example, a value of 0.01 means that factors that explain less than 1\% of variance in all views will be discarded. By default this it zero, meaning that all factors are kept unless they explain no variance at all.  
-
 ```{r}
 TrainOptions <- getDefaultTrainOptions()
 # Automatically drop factors that explain less than 5% of variance in all omics
@@ -202,8 +201,7 @@ BRCA_data <- prepareMOFA(
 ```
 
 ## Run MOFA
-Now we are ready to train the `MOFAobject`, which is done with the function `runMOFA`. This step can take some time (around 15 min with default parameters). For illustration we provide an existing trained `MOFAobject`.  
-IMPORTANT NOTE: The software has evolved since the original publication and the results are not 100% reproducible with the last versions. Yet, the output should be very similar (if not improved) to the pre-existent model.
+Now we are ready to train the `MOFAobject`, which is done with the function `runMOFA`. 
 ```{r, eval=TRUE}
 BRCA_data <- runMOFA(BRCA_data)
 ```
